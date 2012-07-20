@@ -1,0 +1,112 @@
+-----------------------------
+ニフティクラウド SDK for Ruby
+-----------------------------
+
+
+2011-07-31 SDK for Ruby Version.1.7
+-------------------------------------------------------------------------------
+	* 新規リリース
+	- API Version 1.7 に対応
+
+オリジナルからの変更点
+
+	* lib/NIFTY.rb
+	- ファイル名を"AWS.rb"から"NIFTY.rb"へ変更
+	- Baseクラスのinitializeオプションを追加
+	- pathlist、pathhashlistのバリデーションを追加
+	- pathlist、pathhashlistで、パラメータ値がnilまたは空の場合は除外する処理を追加
+	- pathkvlistを削除
+	- リクエストでタイムアウトが出た場合、リトライするよう変更
+	- 署名バージョン、署名生成に使用するアルゴリズムを選択できるよう変更
+	- サーバーからのエラー応答に対応するエラークラスを1つのクラスに統合
+
+	* lib/NIFTY
+	- ディレクトリ名を"AWS"から"NIFTY"へ変更
+	- Autoscaling/を削除
+	- Cloudwatch/を削除
+	- ELB/を削除
+	- RDS/を削除
+	- Autoscaling.rbを削除
+	- Cloudwatch.rbを削除
+	- ELB.rbを削除
+	- RDS.rbを削除
+
+	* lib/NIFTY/Cloud
+	- "AWS/EC2"の名前を"NIFTY/Cloud"へ変更
+	- console.rbを削除
+	- devpay.rbを削除
+	- elastic_ips.rbを削除
+	- image_attributes.rbを削除
+	- password.rbを削除
+	- products.rbを削除
+	- snapshots.rbを削除
+	- spot_instance_requests.rbを削除
+	- spot_prices.rbを削除
+	- subnets.rbを削除
+	- tags.rbを削除
+
+	* lib/NIFTY/Cloud.rb
+	- initializeでconfigの値をセットするよう変更
+
+	* lib/NIFTY/config.rb
+	- 新規作成(ユーザー定義値の設定)
+
+	* lib/NIFTY/exceptions.rb
+	- ConfigurationErrorを追加
+	- ResponseFormatErrorを追加
+	- ResponseErrorを追加(APIエラーレスポンスの共通エラークラス)
+	- エラー毎のエラークラスを削除
+
+	* lib/NIFTY/version.rb
+	- VERSIONを変更
+
+	* lib/NIFTY/Cloud/availability_zones
+	- 指定不可パラメータを除外できるよう変更
+
+	* lib/NIFTY/Cloud/certificates.rb
+	- 新規作成(SSL作成・削除など)
+
+	* lib/NIFTY/Cloud/images.rb
+	- バリデーションの追加
+	- 指定不可パラメータを除外できるよう変更
+	- deregister_imageを削除
+	- register_imageを削除
+	- modity_image_attributeを追加
+
+	* lib/NIFTY/Cloud/instances.rb
+	- バリデーションの追加
+	- 指定不可パラメータを除外できるよう変更
+	- reset_instance_attributeを削除
+	- monitor_instancesを削除
+	- unmonitor_instancesを削除
+	- describe_reserved_instancesを削除
+	- describe_reserved_instances_offeringsを削除
+	- purchase_reserved_instances_offeringを削除
+
+	* lib/NIFTY/Cloud/keypairs.rb
+	- バリデーションの追加
+
+	* lib/NIFTY/Cloud/load_balancers.rb
+	- AWS/ELB/load_balancers.rbから移動
+	- バリデーションの追加
+	- 指定不可パラメータを除外できるよう変更
+	- disable_availability_zones_for_load_balancerを削除
+	- enable_availability_zones_for_load_balancerを削除
+	- resister_port_with_load_balancerを追加
+	- update_load_balancerを追加
+	- set_filter_for_load_balancerを追加
+
+	* lib/NIFTY/Cloud/security_groups.rb
+	- バリデーションの追加
+	- 指定不可パラメータを除外できるよう変更
+	- deregister_instances_from_security_groupを追加
+	- register_instances_with_security_groupを追加
+	- describe_security_activitiesを追加
+	- update_security_groupを追加
+
+	* lib/NIFTY/Cloud/volumes.rb
+	- バリデーションの追加
+	- 指定不可パラメータを除外できるよう変更
+
+
+Copyright 2011 NIFTY Corporation All Rights Reserved.

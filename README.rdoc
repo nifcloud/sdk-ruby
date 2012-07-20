@@ -1,0 +1,375 @@
+= ニフティクラウド SDK for Ruby
+
+== 概要
+
+ニフティクラウド SDK for Ruby は、サーバーの作成・起動・停止やステータス参照などの操作を可能にする Ruby API です。
+この SDK を利用して、ニフティクラウド管理アプリケーションの開発、リソースコントロールの自動化などをより容易に実現することができます。
+
+詳しくは、下記のページをご覧ください。
+
+http://cloud.nifty.com/api/#ruby
+
+== ニフティクラウド SDK for Ruby に含まれているもの
+
+* ニフティクラウド Ruby ライブラリ
+    ニフティクラウドAPI（REST）との通信、処理を実装した Ruby API です。
+    RESTの知識がなくても、お使いの Ruby 環境を利用してアプリケーションの開発をすることが可能です。
+
+* サンプルコード
+    アプリケーション開発のためのライブラリ利用例を内包しています。
+
+* テストコード
+    テスト用のファイルを内包しています。
+
+* ドキュメント
+  * README.rdoc
+      ニフティクラウド SDK for Ruby の説明を記述しています。
+
+  * INSTALL
+      インストール手順について記述しています。
+
+  * LICENSE.txt
+      Ruby License の内容になります。
+
+  * CHANGELOG
+      変更箇所について記述しています。
+
+* パッケージ関連ファイル
+  * Gemfile
+  * Rakefile
+  * nifty-cloud-sdk.gempsec
+
+== 動作環境
+
+* Ruby 1.8.7
+* RubyGems 1.7.2
+* bundler 1.0.12
+* xml-simple 1.0.12
+* mocha 0.9.9
+* test-unix 2.1.2
+* test-spec 0.10.0
+* rcov 0.9.9
+* perftools 0.5.4
+* yard 0.6.2
+
+== 導入
+
+=== API 認証キーの取得
+
+ニフティクラウド SDK for Ruby を利用する前に、ニフティクラウドのアカウントを取得する必要があります。
+
+詳しくは、下記のページをご覧ください。
+
+http://cloud.nifty.com/api/#sdk
+
+=== ニフティクラウド SDK for Ruby のインストール
+
+INSTALL ファイルをご覧ください。
+
+
+== 利用方法
+
+ニフティクラウド SDK for Ruby を利用するためのインタフェースクラスは NIFTY::Cloud::Base です。
+
+=== 準備
+
+API認証キー（公開キー・秘密キー）は、事前に必ず設定してください。
+※それ以外の設定できる値は、環境に合わせて変更してください。
+
+設定方法は下記方法の何れかで設定できます。
+
+* 環境変数
+* 定義ファイル
+* オブジェクト生成時の引数
+
+すべての方法で設定した場合は、下記優先度に従い設定されます。
+
+  オブジェクト生成時の引数 ＞ 環境変数 ＞ 定義ファイル
+
+認証バージョン・APIの認証ロジックで設定できる値は、APIリファレンスをご覧ください。
+
+http://cloud.nifty.com/api/rest/
+
+
+==== 環境変数での設定
+
+[ NIFTY_CLOUD_ACCESS_KEY         ] 公開キー
+[ NIFTY_CLOUD_SECRET_KEY         ] 秘密キー
+[ NIFTY_CLOUD_ENDPOINT_URL       ] エンドポイント
+[ NIFTY_CLOUD_PROXY_SERVER       ] プロキシサーバーURL
+[ NIFTY_CLOUD_USER_AGENT         ] ユーザーエージェント
+[ NIFTY_CLOUD_MAX_RETRY          ] 最大リトライ回数
+[ NIFTY_CLOUD_CONNECTION_TIMEOUT ] 接続タイムアウト(秒)
+[ NIFTY_CLOUD_SOCKET_TIMEOUT     ] ソケットタイムアウト(秒)
+[ NIFTY_CLOUD_SIGNATURE_VERSION  ] 認証バージョン
+[ NIFTY_CLOUD_SIGNATURE_METHOD   ] APIの認証ロジック
+
+環境変数の指定方法は下記のようになります。
+
+例) 公開キーを環境変数で設定する場合(Linux)
+  % export NIFTY_CLOUD_ACCESS_KEY="<Your Access Key>"
+
+==== 定義ファイルでの設定
+
+定義ファイルは、lib/NIFTY/config.rb になります。
+
+[ ACCESS_KEY         ] 公開キー                   (default: '<default access key>')
+[ SECRET_KEY         ] 秘密キー                   (default: '<default secret key>')
+[ ENDPOINT_URL       ] エンドポイント             (default: 'https://cp.cloud.nifty.com/api/1.7/')
+[ PROXY_SERVER       ] プロキシサーバーURL        (default: nil)
+[ USER_AGENT         ] ユーザーエージェント       (default: 'NIFTY Cloud API Ruby SDK')
+[ MAX_RETRY          ] 最大リトライ回数           (default: 3)
+[ CONNECTION_TIMEOUT ] 接続タイムアウト(秒)       (default: 30)
+[ SOCKET_TIMEOUT     ] ソケットタイムアウト(秒)   (default: 30)
+[ SIGNATURE_VERSION  ] 認証バージョン             (default: '2')
+[ SIGNATURE_METHOD   ] APIの認証ロジック          (default: 'HmacSHA256')
+
+==== オブジェクト生成時の引数での設定
+
+[ :access_key         ]  公開キー
+[ :secret_key         ]  秘密キー
+[ :use_ssl            ]  SSL暗号化(現状true以外は認めていない)
+[ :server             ]  ニフティクラウドAPI ホスト名
+[ :port               ]  ニフティクラウドAPI ポート番号
+[ :path               ]  ニフティクラウドAPI パス
+[ :proxy_server       ]  プロキシサーバーURL
+[ :user_agent         ]  ユーザーエージェント
+[ :max_retry          ]  最大リトライ回数
+[ :connection_timeout ]  接続タイムアウト(秒)
+[ :socket_timeout     ]  ソケットタイムアウト(秒)
+[ :signature_version  ]  認証バージョン
+[ :signature_method   ]  APIの認証ロジック
+
+オブジェクト生成時の引数での設定例は、下記「基本操作」の項をご覧ください。
+
+==== プロキシサーバー利用時の設定方法
+
+プロキシサーバーを使用する場合は、プロキシサーバーURLを指定する必要があります。
+※設定例はLinux使用時のものとなります。
+
+＜ユーザー認証がない場合＞
+
+設定例）
+
+  % export NIFTY_CLOUD_PROXY_SERVER='//<host>:<port>'
+
+＜ユーザー認証がある場合＞
+
+設定例）
+
+  % export NIFTY_CLOUD_PROXY_SERVER='//<user>:<password>@<host>:<port>'
+
+* <user> プロキシサーバーに接続するためのユーザー名
+* <password> プロキシサーバーに接続するためのパスワード
+* <host> プロキシサーバーのホスト名
+* <port> プロキシサーバーのポート番号
+
+=== 基本操作
+
+ニフティクラウド SDK for Rubyを利用するためのインタフェースクラスを用いて操作を行います。
+
+  NIFTY::Cloud::Base
+
+オブジェクトの生成は以下のように行います。
+
+＜環境変数・定義ファイルの設定値を使う場合＞
+
+  @nifty = NIFTY::Cloud::Base.new
+
+＜オブジェクト生成時の引数を指定する場合＞
+
+  @nifty = NIFTY::Cloud::Base.new(:access_key => "<Your Access Key>", :secret_key => "<Your Secret Access Key>")
+
+※注意
+ニフティクラウド用に用意しているパブリックメソッドは、APIリファレンス(REST)に記載のあるAPI名とは異なっています。
+例えば 'RunInstances' は、'@nifty.run_instances()' となります。
+
+オブジェクト生成後、利用したいAPIに対応したメソッドを呼び出します。
+
+  res = @nifty.run_instances( options )
+
+  ※optionsには必要なオプションを設定
+
+res にレスポンス結果が格納されます。
+
+
+=== サンプルスクリプト
+
+sample ディレクトリ内をご覧ください。
+
+=== Ruby script 利用例:
+
+RunInstances の例）
+
+  #!/usr/bin/env ruby
+
+  require 'rubygems'
+  require "NIFTY"
+  require 'pp'
+
+  ACCESS_KEY = ENV["NIFTY_CLOUD_ACCESS_KEY"] || "<Your Access Key ID>"
+  SECRET_KEY = ENV["NIFTY_CLOUD_SECRET_KEY"] || "<Your Secret Access Key>"
+
+
+  ncs4r = NIFTY::Cloud::Base.new(:access_key => ACCESS_KEY, :secret_key => SECRET_KEY)
+
+  options = {
+    :image_id                 => "imageId",
+    :key_name                 => "keyName",
+    :security_group           => ["groupName"],
+    :instance_type            => "instanceType",
+    :disable_api_termination  => false,
+    :accounting_type          => "accountingType",
+    :instance_id              => "instanceId",
+    :admin                    => "admin",
+    :password                 => "password",
+    :ip_type                  => "static"
+  }
+
+  pp response = ncs4r.run_instances(options)
+  
+=== Ruby on Rails 利用例:
+
+＜プラグインとして追加＞
+
+プラグイン作成コマンドを実行します。
+
+  % script/generate plugin nifty_cloud_api
+
+作成されたライブラリディレクトリにSDKを展開します。
+
+  ${RAILS_HOME}/vendor/plugins/nifty_cloud_api/lib/NIFTY/…
+                                                   NIFTY.rb
+
+また、作成されたinit.rbファイルを編集し、
+
+  # init.rb
+  # Include hook code here
+  require 'NIFTY'
+
+アプリケーション初期化時に読み込まれるように設定します。
+
+RunInstances の例）
+
+  ncs4r = NIFTY::Cloud::Base.new(:access_key => ACCESS_KEY, :secret_key => SECRET_KEY)
+  options = { ... }
+  pp response = ncs4r.run_instances(options)
+
+=== レスポンス結果の取り扱い
+
+ニフティクラウドからのレスポンスはXML形式で返ってきます。
+
+ニフティクラウド SDK for Ruby では、返ってきたレスポンスをハッシュ構造体にしてユーザーに返却します。
+
+==== レスポンス例
+
+  <RunInstancesResponse xmlns="https://cp.cloud.nifty.com/api/1.7/">
+    <requestId>22e11cc4-0e5a-4815-9892-b1ed6aeed6c4</requestId>
+    <reservationId/>
+    <ownerId/>
+    <groupSet>
+      <item>
+        <groupId>groupName</groupId>
+      </item>
+    </groupSet>
+    <instancesSet>
+      <item>
+        <instanceId>instanceId</instanceId>
+        <imageId>imageId</imageId>
+        <instanceState>
+          <code>0</code>
+          <name>pending</name>
+        </instanceState>
+        <privateDnsName/>
+        <dnsName/>
+        <keyName>keyName</keyName>
+        <admin/>
+        <instanceType>instanceType</instanceType>
+        <launchTime>2011-07-01T13:21:59.074+09:00</launchTime>
+        <placement>
+          <availabilityZone>ap-japan-1a</availabilityZone>
+        </placement>
+        <platform>centos</platform>
+        <monitoring>
+          <state>monitoring-disabled</state>
+        </monitoring>
+        <privateIpAddress/>
+        <ipAddress/>
+        <privateIpAddressV6/>
+        <ipAddressV6/>
+        <architecture>i386</architecture>
+        <rootDeviceType>disk</rootDeviceType>
+        <blockDeviceMapping/>
+        <accountingType>accountingType</accountingType>
+        <ipType>static</ipType>
+      </item>
+    </instancesSet>
+  </RunInstancesResponse>
+
+==== アクセス方法
+
+上記レスポンスが返ってくるとした場合、imageIdを参照したい時は下記操作で参照できます。
+
+  puts res.instancesSet.item[0].imageId         # => imageId
+
+
+=== 例外処理
+
+何らかの理由で処理が失敗した時は、例外が発生します。
+例外の定義は lib/NIFTY/exception.rb で定義されています。
+
+ニフティクラウド SDK for Ruby で発生させる例外は下記になります。
+
+====  定義エラー
+定義値に不正があった場合に出力されれます。
+
+  ConfigurationError
+
+==== 引数エラー
+引数に不正があった場合に出力されれます。
+
+  ArgumentError 
+
+==== フォーマットエラー
+サーバーからのレスポンスが解析できない場合に出力されます。
+
+  ResponseFormatError
+
+==== レスポンスエラー
+サーバーからのレスポンスがエラーの場合に出力されれます。
+
+  ResponseError
+
+===== レスポンスエラー時のエラー情報取得方法について
+レスポンスエラーの場合は、エラーコード・エラーメッセージがクラス内で定義されています。
+
+  begin
+    @nifty.describe_instances
+  rescue ResponseError => e
+    puts "Error Code: #{e.error_code}"
+    puts "Error Message: #{e.error_message}"
+  end
+
+
+== 謝辞
+
+Glenn Rempe氏のライブラリを改変して作成しております。
+
+詳しくは下記ページをご覧ください。
+
+https://github.com/grempe/amazon-ec2/tree/master
+
+== ライセンス
+
+このソフトフェアのライセンスは、Ruby License に従います。
+
+== その他
+
+=== ウェブサイト
+
+* ニフティクラウド : http://cloud.nifty.com/ 
+* ニフティクラウドAPI : http://cloud.nifty.com/api/ 
+* rdoc : http://cloud.nifty.com/api/sdk/rdoc/ 
+
+Copyright 2011 NIFTY Corporation All Rights Reserved.
+

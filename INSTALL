@@ -1,0 +1,30 @@
+-----------------------------
+ニフティクラウド SDK for Ruby
+-----------------------------
+
+ニフティクラウド SDK for Ruby のインストールは、以下の手順で行います。
+
+1. ソースアーカイブの解凍
+
+  % unzip NIFTY_Cloud_SDK_for_Ruby.zip
+  % cd NIFTY_Cloud_SDK_for_Ruby
+
+2. 依存ライブラリの解決 ※bundlerがインストールされていること
+
+  % bundle install
+
+3. テストコードの実行
+
+  % rake test
+
+4. nifty-cloud-sdk のgemパッケージ作成
+
+  % rake build
+
+5. nifty-cloud-sdk をインストール(gemへ登録)
+
+  % rake install
+
+
+Copyright 2011 NIFTY Corporation All Rights Reserved.
+
