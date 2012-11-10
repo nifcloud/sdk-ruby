@@ -306,6 +306,7 @@ context "instances" do
       disableApiTermination 
       blockDeviceMapping 
       accountingType 
+      nextMonthAccountingType
       loadbalancing 
       copyInfo 
       autoscaling 

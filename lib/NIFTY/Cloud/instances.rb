@@ -7,7 +7,7 @@ module NIFTY
       BOOLEAN                       = ['true', 'false']
       IP_TYPE                       = ['static', 'dynamic', 'none']
       INSTANCES_DESCRIBE_ATTRIBUTE  = [
-        'instanceType', 'disableApiTermination', 'blockDeviceMapping', 'accountingType', 
+        'instanceType', 'disableApiTermination', 'blockDeviceMapping', 'accountingType', 'nextMonthAccountingType',
         'loadbalancing', 'copyInfo', 'autoscaling', 'ipType', 'groupId', 'description']
       INSTANCES_MODIFY_ATTRIBUTE    = ['instanceType', 'disableApiTermination', 'instanceName', 'description', 'ipType', 'groupId']
       INSTANCES_IGNORED_PARAMS      = Regexp.union(/MinCount/, 
@@ -29,7 +29,7 @@ module NIFTY
       #
       #  @option options  [String] :instance_id  サーバー名(必須)
       #  @option options  [String] :attribute    取得対象の項目名
-      #   許可値: instanceType | disableApiTermination | blockDeviceMapping | accountingType | loadbalancing | copyInfo | autoscaling | ipType | groupId | description
+      #   許可値: instanceType | disableApiTermination | blockDeviceMapping | accountingType | nextMonthAccountingType | loadbalancing | copyInfo | autoscaling | ipType | groupId | description
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example 
