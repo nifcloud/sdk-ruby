@@ -14,7 +14,7 @@ module NIFTY
     # APIのエンドポイント
     #  @example 
     #  'https://example.com/test/'
-    ENDPOINT_URL  = ENV['NIFTY_CLOUD_ENDPOINT_URL']             || 'https://cp.cloud.nifty.com/api/1.7/'
+    ENDPOINT_URL  = ENV['NIFTY_CLOUD_ENDPOINT_URL']             || 'https://cp.cloud.nifty.com/api/'
 
     # プロキシサーバーのURL(デフォルト： nil)
     #  形式： //<username>:<password>@<hostname>:<port>
