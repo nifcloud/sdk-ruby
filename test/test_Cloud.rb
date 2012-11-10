@@ -1,4 +1,5 @@
 #!ruby -W0
+# coding:utf-8
 #--
 # ニフティクラウドSDK for Ruby
 #
