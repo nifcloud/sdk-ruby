@@ -22,6 +22,7 @@ context "load_balancers" do
     @valid_balancing_type = [1, 2, '1', '2']
     @valid_network_volume = [10, 20, 30, 40, 100, 200, '10', '20', '30', '40', '100', '200']
     @valid_ip_version = %w(v4 v6)
+    @accounting_type = %w(1 2)
 
     @basic_create_lb_params = {
       :load_balancer_name => 'lb01',
@@ -133,6 +134,8 @@ context "load_balancers" do
               <member>ap-japan-1a</member>  
             </AvailabilityZones>    
             <CreatedTime>2010-05-17T11:22:33.456Z</CreatedTime>    
+            <AccountingType>1</AccountingType>
+            <NextMonthAccountingType>1</NextMonthAccountingType>
           </member>      
         </LoadBalancerDescriptions>        
         <LoadBalancerDescriptions>        
@@ -171,6 +174,8 @@ context "load_balancers" do
               <member>ap-japan-1a</member>  
             </AvailabilityZones>    
             <CreatedTime>2010-05-17T11:22:43.789Z</CreatedTime>    
+            <AccountingType>1</AccountingType>
+            <NextMonthAccountingType>1</NextMonthAccountingType>
           </member>      
         </LoadBalancerDescriptions>        
       </DescribeLoadBalancersResult>          
@@ -320,10 +325,11 @@ context "load_balancers" do
                                    "AvailabilityZones.member.1" => "a",
                                    "AvailabilityZones.member.2" => "a",
                                    "NetworkVolume" => "10",
-                                   "IpVersion" => "v4"
+                                   "IpVersion" => "v4",
+                                   "AccountingType" => "1"
                                   ).returns stub(:body => @create_load_balancer_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @create_load_balancer_response_body, :is_a? => true)
-    response = @api.create_load_balancer(:load_balancer_name => "a", :listeners => [{:protocol => "HTTP", :load_balancer_port => 80, :instance_port => 80, :balancing_type => 1},{:protocol => "HTTP", :load_balancer_port => 80, :instance_port => 80, :balancing_type => 1}], :availability_zones => %w(a a), :network_volume => 10, :ip_version => "v4")
+    response = @api.create_load_balancer(:load_balancer_name => "a", :listeners => [{:protocol => "HTTP", :load_balancer_port => 80, :instance_port => 80, :balancing_type => 1},{:protocol => "HTTP", :load_balancer_port => 80, :instance_port => 80, :balancing_type => 1}], :availability_zones => %w(a a), :network_volume => 10, :ip_version => "v4", :accounting_type => "1")
   end
 
   specify "create_load_balancer - :listeners - :protocol正常" do
@@ -368,6 +374,15 @@ context "load_balancers" do
     end
   end
   
+  specify "create_load_balancer - :accounting_type正常" do
+    @api.stubs(:exec_request).returns stub(:body => @create_load_balancer_response_body, :is_a? => true)
+
+    @accounting_type.each do |type|
+      lambda { @api.create_load_balancer(@basic_create_lb_params.merge(:accounting_type => type)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+    lambda { @api.create_load_balancer(@basic_create_lb_params.merge(:accounting_type => '')) }.should.not.raise(NIFTY::ArgumentError)
+  end
+  
   specify "create_load_balancer - :load_balancer_name未指定" do
     lambda { @api.create_load_balancer }.should.raise(NIFTY::ArgumentError)
     lambda { @api.create_load_balancer(:load_balancer_name => nil) }.should.raise(NIFTY::ArgumentError)
@@ -405,6 +420,11 @@ context "load_balancers" do
     lambda { @api.create_load_balancer(@basic_create_lb_params.merge(:ip_version => 'v5')) }.should.raise(NIFTY::ArgumentError)
   end
 
+  specify "create_load_balancer - :accounting_type不正" do
+    lambda { @api.create_load_balancer(@basic_create_lb_params.merge(:accounting_type => 'foo')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.create_load_balancer(@basic_create_lb_params.merge(:accounting_type => '3')) }.should.raise(NIFTY::ArgumentError)
+  end
+
 
   # update_load_balancer
   specify "update_load_balancer - レスポンスを正しく解析できるか" do
@@ -422,10 +442,11 @@ context "load_balancers" do
                                    "ListenerUpdate.Listener.LoadBalancerPort" => "80",
                                    "ListenerUpdate.Listener.InstancePort" => "80",
                                    "ListenerUpdate.Listener.BalancingType" => "1",
-                                   "NetworkVolumeUpdate" => "10"
+                                   "NetworkVolumeUpdate" => "10",
+                                   "AccountingTypeUpdate" => "1" 
                                   ).returns stub(:body => @update_load_balancer_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_response_body, :is_a? => true)
-    response = @api.update_load_balancer(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80, :listener_protocol => "HTTP", :listener_load_balancer_port => 80, :listener_instance_port => 80, :listener_balancing_type => 1, :network_volume_update => 10)
+    response = @api.update_load_balancer(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80, :listener_protocol => "HTTP", :listener_load_balancer_port => 80, :listener_instance_port => 80, :listener_balancing_type => 1, :network_volume_update => 10, :accounting_type_update => 1)
   end
 
   specify "update_load_balancer - :load_balancer_port正常" do
@@ -477,6 +498,13 @@ context "load_balancers" do
     end
   end
   
+  specify "update_load_balancer - :accounting_type_update正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_response_body, :is_a? => true)
+    @accounting_type.each do |type|
+      lambda { @api.update_load_balancer(:load_balancer_name => 'lb1', :accounting_type_update => type) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
   specify "update_load_balancer - :load_balancer_name未指定" do
     lambda { @api.update_load_balancer }.should.raise(NIFTY::ArgumentError)
     lambda { @api.update_load_balancer(:load_balancer_name => nil) }.should.raise(NIFTY::ArgumentError)
@@ -522,6 +550,11 @@ context "load_balancers" do
   specify "update_load_balancer - :network_volume_update不正" do
     lambda { @api.update_load_balancer(:load_balancer_name => 'lb1', :network_volume_update => 300) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.update_load_balancer(:load_balancer_name => 'lb1', :network_volume_update => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_load_balancer - :accounting_type_update不正" do
+    lambda { @api.update_load_balancer(:load_balancer_name => 'lb1', :accounting_type_update => 3) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer(:load_balancer_name => 'lb1', :accounting_type_update => 'foo') }.should.raise(NIFTY::ArgumentError)
   end
 
 

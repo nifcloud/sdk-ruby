@@ -80,6 +80,8 @@ module NIFTY
       #   許可値: 10 | 20 | 30 | 40 | 100 | 200　（単位： Mbps）
       #  @option options [String] :ip_version             グローバルIP アドレスのバージョン 
       #   許可値: v4
+      #  @option options [String] :accounting_type        利用料金タイプ
+      #   許可値: 1(月額課金) | 2(従量課金)
       #  @return [Hash] レスポンスXML解析結果
       #                   
       #  @example
@@ -99,8 +101,9 @@ module NIFTY
         end
         raise ArgumentError, "Invalid :network_volume provided." unless blank?(options[:network_volume]) || NETWORK_VOLUMES.include?(options[:network_volume].to_s)
         raise ArgumentError, "Invalid :ip_version provided." unless blank?(options[:ip_version]) || IP_VERSION.include?(options[:ip_version].to_s)
+        raise ArgumentError, "Invalid :accounting_type provided." unless blank?(options[:accounting_type]) || ACCOUNTING_TYPE.include?(options[:accounting_type].to_s)
         params = {'Action' => 'CreateLoadBalancer'}
-        params.merge!(opts_to_prms(options, [:load_balancer_name, :network_volume, :ip_version]))
+        params.merge!(opts_to_prms(options, [:load_balancer_name, :network_volume, :ip_version, :accounting_type]))
         params.merge!(pathhashlist('Listeners.member', options[:listeners], 
                                    {:protocol => 'Protocol', 
                                      :load_balancer_port => 'LoadBalancerPort',
@@ -387,6 +390,8 @@ module NIFTY
       #                    許可値: 1(Round-Robin) | 2(Least-Connection) 
       #  @option options [String] :network_volume_update          最大ネットワーク流量の更新値
       #   許可値: 10 | 20 | 30 | 40 | 100 | 200　（単位： Mbps）
+      #  @option options [String] :accounting_type_update         利用料金タイプ
+      #   許可値: 1(月額課金) | 2(従量課金)
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -415,6 +420,8 @@ module NIFTY
           BALANCING_TYPE.include?(options[:listener_balancing_type].to_s)
         raise ArgumentError, "Invalid :network_volume_update provided." unless blank?(options[:network_volume_update]) || 
           NETWORK_VOLUMES.include?(options[:network_volume_update].to_s)
+        raise ArgumentError, "Invalid :accounting_type_update provided." unless blank?(options[:accounting_type_update]) ||
+          ACCOUNTING_TYPE.include?(options[:accounting_type_update].to_s)
 
         params = {
           'Action' => 'UpdateLoadBalancer',
@@ -423,7 +430,7 @@ module NIFTY
           'ListenerUpdate.Listener.InstancePort' => options[:listener_instance_port].to_s, 
           'ListenerUpdate.Listener.BalancingType' => options[:listener_balancing_type].to_s 
         }
-        params.merge!(opts_to_prms(options, [:load_balancer_name, :network_volume_update]))
+        params.merge!(opts_to_prms(options, [:load_balancer_name, :network_volume_update, :accounting_type_update]))
         params.merge!(opts_to_prms(options, [:load_balancer_port, :instance_port], 'ListenerUpdate'))
         
         return response_generator(params)
