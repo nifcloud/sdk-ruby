@@ -17,7 +17,8 @@ context "instances" do
     @api = NIFTY::Cloud::Base.new( :access_key_id => "not a key", :secret_access_key => "not a secret",
                                     :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :user_agent => 'NIFTY Cloud API Ruby SDK',
                                     :signature_version => '2', :signature_method => 'HmacSHA256')
-    @valid_instance_type = %w(mini small small2 small4 medium medium4 medium8 large large8 large16)
+    @valid_instance_type = %w(mini small small2 small4 small8 medium medium4 medium8 medium16
+                              large large8 large16 large24 large32 extra-large16 extra-large24 extra-large32)
     @valid_ip_type = %w(static dynamic)
     @accounting_type = [1, 2, '1', '2']
 

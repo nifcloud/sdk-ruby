@@ -1,7 +1,8 @@
 module NIFTY
   module Cloud
     class Base < NIFTY::Base
-      INSTANCE_TYPE                 = ['mini', 'small', 'small2', 'small4', 'medium', 'medium4', 'medium8', 'large', 'large8', 'large16']
+      INSTANCE_TYPE                 = ['mini', 'small', 'small2', 'small4', 'small8', 'medium', 'medium4', 'medium8', 'medium16',
+                                       'large', 'large8', 'large16', 'large24', 'large32', 'extra-large16', 'extra-large24', 'extra-large32']
       ACCOUNTING_TYPE               = ['1', '2']
       BOOLEAN                       = ['true', 'false']
       IP_TYPE                       = ['static', 'dynamic']
@@ -75,7 +76,7 @@ module NIFTY
       #           description(メモ情報を更新) | ipType(IP アドレスの固定化タイプを更新) | groupId(ファイアウォールグループを更新)
       #   
       #  @option options [String] :value        更新値(必須)
-      #   許可値: (:attribute= instanceType) mini | small | small2 | small4 | medium | medium4 | medium8 | large | large8 | large16
+      #   許可値: (:attribute= instanceType) mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #           (:attribute= disableApiTermination) true | false 
       #           (:attribute= ipType) static | dynamic
       #  @return [Hash] レスポンスXML解析結果
@@ -137,7 +138,7 @@ module NIFTY
       #  @option options [String] :key_name                   SSHキー名
       #  @option options [Array<String>] :security_group      適用するファイアフォールグループ名
       #  @option options [String] :instance_type              サーバータイプ
-      #   許可値: mini | small | small2 | small4 | medium | medium4 | medium8 | large | large8 | large16
+      #   許可値: mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #  @option options [Boolean] :disable_api_termination   APIからのサーバー削除の可否 
       #   許可値: true(削除不可) | false(削除可)
       #  @option options [String] :accounting_type            利用料金タイプ
@@ -202,7 +203,7 @@ module NIFTY
       #
       #  @option options [Array<String>] :instance_id      サーバー名(必須)
       #  @option options [Array<String>] :instance_type    サーバータイプ
-      #   許可値: mini | small | small2 | small4 | medium | medium4 | medium8 | large | large8 | large16
+      #   許可値: mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #  @option options [Array<String>] :accounting_type  利用料金タイプ
       #  @return [Hash] レスポンスXML解析結果
       #
@@ -290,7 +291,7 @@ module NIFTY
       #  @option options [String] :instance_id            コピー元のサーバー名(必須) 
       #  @option options [String] :instance_name          コピー後のサーバー名(必須) 
       #  @option options [String] :instance_type          サーバータイプ
-      #   許可値: mini | small | small2 | small4 | medium | medium4 | medium8 | large | large8 | large16
+      #   許可値: mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #  @option options [String] :accounting_type        利用料金タイプ
       #   許可値: 1(月額課金) | 2(従量課金)
       #  @option options [Array<Hash>] :load_balancers    ロードバランサー設定
