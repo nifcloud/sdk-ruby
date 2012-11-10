@@ -19,7 +19,7 @@ context "instances" do
                                     :signature_version => '2', :signature_method => 'HmacSHA256')
     @valid_instance_type = %w(mini small small2 small4 small8 medium medium4 medium8 medium16
                               large large8 large16 large24 large32 extra-large16 extra-large24 extra-large32)
-    @valid_ip_type = %w(static dynamic)
+    @valid_ip_type = %w(static dynamic none)
     @accounting_type = [1, 2, '1', '2']
 
     @basic_run_instances_options = {:security_group => "gr01", :image_id => 2, :key_name => 'foo', :password => 'password'}

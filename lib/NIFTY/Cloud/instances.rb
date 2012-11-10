@@ -5,7 +5,7 @@ module NIFTY
                                        'large', 'large8', 'large16', 'large24', 'large32', 'extra-large16', 'extra-large24', 'extra-large32']
       ACCOUNTING_TYPE               = ['1', '2']
       BOOLEAN                       = ['true', 'false']
-      IP_TYPE                       = ['static', 'dynamic']
+      IP_TYPE                       = ['static', 'dynamic', 'none']
       INSTANCES_DESCRIBE_ATTRIBUTE  = [
         'instanceType', 'disableApiTermination', 'blockDeviceMapping', 'accountingType', 
         'loadbalancing', 'copyInfo', 'autoscaling', 'ipType', 'groupId', 'description']
@@ -78,7 +78,7 @@ module NIFTY
       #  @option options [String] :value        更新値(必須)
       #   許可値: (:attribute= instanceType) mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #           (:attribute= disableApiTermination) true | false 
-      #           (:attribute= ipType) static | dynamic
+      #           (:attribute= ipType) static | dynamic | none
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -148,7 +148,7 @@ module NIFTY
       #  @option options [String] :password                   管理者アカウントパスワード
       #   許可値: 半角英数字
       #  @option options [String] :ip_type                    IPアドレスタイプ
-      #   許可値: static | dynamic
+      #   許可値: static | dynamic | none
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
