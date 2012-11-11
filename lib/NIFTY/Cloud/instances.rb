@@ -22,6 +22,7 @@ module NIFTY
                                                    /Monitoring\.Enabled/, 
                                                    /SubnetId/, 
                                                    /InstanceInitiatedShutdownBehavior/)
+      WINDOWS_IMAGE_ID              = ['12', '16']
 
       # API「DescribeInstanceAttribute」を実行し、指定したサーバーの詳細情報を取得します。1回のリクエストで、指定したサーバーのどれか1つの詳細情報を取得できます。
       # サーバーを指定するためには、サーバー名が必要です。削除済みのサーバーを指定した、管理外のサーバーを指定したなど、
@@ -173,7 +174,7 @@ module NIFTY
         raise ArgumentError, "Invalid :key_name provided." unless blank?(options[:key_name]) || ALPHANUMERIC =~ options[:key_name].to_s
         #raise ArgumentError, "No :security_group provided." if blank?(options[:security_group])
         raise ArgumentError, "Invalid :security_group provided." unless blank?(options[:security_group]) || GROUP_NAME =~ options[:security_group].to_s
-        raise ArgumentError, "No :password provided." if options[:image_id].to_s.to_i < 10000 && blank?(options[:password])
+        raise ArgumentError, "No :password provided." if WINDOWS_IMAGE_ID.include?(options[:image_id].to_s) && blank?(options[:password])
         raise ArgumentError, "Invalid :password provided." unless blank?(options[:password]) || ALPHANUMERIC =~ options[:password].to_s
         raise ArgumentError, "Invalid :instance_type provided." unless blank?(options[:instance_type]) || INSTANCE_TYPE.include?(options[:instance_type].to_s)
         raise ArgumentError, "Invalid :disable_api_termination provided." unless blank?(options[:disable_api_termination]) || 

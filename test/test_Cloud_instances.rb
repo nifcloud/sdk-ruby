@@ -21,6 +21,7 @@ context "instances" do
                               large large8 large16 large24 large32 extra-large16 extra-large24 extra-large32)
     @valid_ip_type = %w(static dynamic none)
     @accounting_type = [1, 2, '1', '2']
+    @windows_image_id = [12, 16, '12', '16']
 
     @basic_run_instances_options = {:security_group => "gr01", :image_id => 2, :key_name => 'foo', :password => 'password'}
 
@@ -626,9 +627,15 @@ context "instances" do
   end
 
   specify "run_instances - :password未指定/不正" do
-    lambda { @api.run_instances(:image_id => 1) }.should.raise(NIFTY::ArgumentError)
-    lambda { @api.run_instances(:image_id => 1, :password => nil) }.should.raise(NIFTY::ArgumentError)
-    lambda { @api.run_instances(:image_id => 1, :password => '') }.should.raise(NIFTY::ArgumentError)
+    @api.stubs(:exec_request).returns stub(:body => @run_instances_response_body, :is_a? => true)
+    lambda { @api.run_instances(@basic_run_instances_options.merge(:image_id => 1)) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.run_instances(@basic_run_instances_options.merge(:image_id => 1, :password => nil)) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.run_instances(@basic_run_instances_options.merge(:image_id => 1, :password => '')) }.should.not.raise(NIFTY::ArgumentError)
+    @windows_image_id.each do |image_id|
+      lambda { @api.run_instances(:image_id => image_id) }.should.raise(NIFTY::ArgumentError)
+      lambda { @api.run_instances(:image_id => image_id, :password => nil) }.should.raise(NIFTY::ArgumentError)
+      lambda { @api.run_instances(:image_id => image_id, :password => '') }.should.raise(NIFTY::ArgumentError)
+    end
     lambda { @api.run_instances(:image_id => 1, :password => 'Pass_word') }.should.raise(NIFTY::ArgumentError)
   end
 
