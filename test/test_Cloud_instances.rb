@@ -657,10 +657,11 @@ context "instances" do
                                    'InstanceType.1' => 'mini',
                                    'InstanceType.2' => 'mini',
                                    'AccountingType.1' => '1',
-                                   'AccountingType.2' => '1'
+                                   'AccountingType.2' => '1',
+                                   'UserData' => 'data'
     ).returns stub(:body => @start_instances_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @start_instances_response_body, :is_a? => true)
-    response = @api.start_instances( :instance_id => %w(server01 server02), :instance_type => %w(mini mini), :accounting_type => %w(1 1) )
+    response = @api.start_instances( :instance_id => %w(server01 server02), :instance_type => %w(mini mini), :accounting_type => %w(1 1), :user_data => 'data')
   end
 
   specify "start_instances - :instance_id未指定" do
@@ -691,6 +692,13 @@ context "instances" do
   end
   specify "start_instances - :accounting_type不正" do
     lambda { @api.start_instances(:instance_id => 'i-10a64379', :accounting_type => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "start_instances - :user_data正常" do
+    @api.stubs(:exec_request).returns stub(:body => @start_instances_response_body, :is_a? => true)
+    lambda { @api.start_instances(:instance_id => 'i-10a64379', :user_data => 'data') }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.start_instances(:instance_id => 'i-10a64379', :user_data => 'data', :base64_encoded => true) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.start_instances(:instance_id => 'i-10a64379', :user_data => 'data', :base64_encoded => false) }.should.not.raise(NIFTY::ArgumentError)
   end
 
 
@@ -748,10 +756,11 @@ context "instances" do
     @api.stubs(:make_request).with('Action' => 'RebootInstances', 
                                    'InstanceId.1' => 'server01',
                                    'InstanceId.2' => 'server02',
-                                   'Force' => 'false'
+                                   'Force' => 'false',
+                                   'UserData' => 'data'
                                   ).returns stub(:body => @reboot_instances_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @reboot_instances_response_body, :is_a? => true)
-    response = @api.reboot_instances( :instance_id => %w(server01 server02), :force => false )
+    response = @api.reboot_instances( :instance_id => %w(server01 server02), :force => false, :user_data => 'data' )
   end
 
   specify "reboot_instances - :force正常" do
@@ -760,6 +769,13 @@ context "instances" do
     lambda { @api.reboot_instances(:instance_id => 'i-28a64341', :force => false) }.should.not.raise(NIFTY::ArgumentError)
     lambda { @api.reboot_instances(:instance_id => 'i-28a64341', :force => '') }.should.not.raise(NIFTY::ArgumentError)
     lambda { @api.reboot_instances(:instance_id => 'i-28a64341', :force => nil) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "reboot_instances - :user_data正常" do
+    @api.stubs(:exec_request).returns stub(:body => @reboot_instances_response_body, :is_a? => true)
+    lambda { @api.reboot_instances(:instance_id => 'i-28a64341', :user_data => 'data') }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.reboot_instances(:instance_id => 'i-28a64341', :user_data => 'data', :base64_encoded => true) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.reboot_instances(:instance_id => 'i-28a64341', :user_data => 'data', :base64_encoded => false) }.should.not.raise(NIFTY::ArgumentError)
   end
 
   specify "reboot_instances - :instance_id未指定" do

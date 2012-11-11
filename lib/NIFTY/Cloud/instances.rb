@@ -109,6 +109,9 @@ module NIFTY
       #  @option options [Array<String>] :instance_id  サーバー名(必須) 
       #  @option options [Boolean] :force              強制オプション
       #   許可値: true(強制実行) | false(強制実行しない)
+      #  @option options [String] :user_data           サーバー起動時スクリプト
+      #  @option options [Boolean] :base64_encoded     サーバー起動時スクリプトを自動的にBase64 エンコードするかどうか
+      #   許可値: true(base64エンコーディングする) | false(base64エンコーディングしない)
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -118,11 +121,15 @@ module NIFTY
         raise ArgumentError, "No :instance_id provided." if blank?(options[:instance_id])
         raise ArgumentError, "Invalid :force provided." unless blank?(options[:force]) || BOOLEAN.include?(options[:force].to_s)
 
+        user_data = extract_user_data(options)
+        options[:user_data] = user_data
+
         params = {
           'Action' => 'RebootInstances',
           'Force' => options[:force].to_s
         }
         params.merge!(pathlist('InstanceId', options[:instance_id]))
+        params.merge!(opts_to_prms(options, [:user_data]))
 
         return response_generator(params)
       end
@@ -137,6 +144,9 @@ module NIFTY
       #  @option options [String] :image_id                   OSイメージID名(必須)
       #  @option options [String] :key_name                   SSHキー名
       #  @option options [Array<String>] :security_group      適用するファイアフォールグループ名
+      #  @option options [String] :user_data                  サーバー起動時スクリプト
+      #  @option options [Boolean] :base64_encoded            サーバー起動時スクリプトを自動的にBase64 エンコードするかどうか
+      #   許可値: true(base64エンコーディングする) | false(base64エンコーディングしない)
       #  @option options [String] :instance_type              サーバータイプ
       #   許可値: mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #  @option options [Boolean] :disable_api_termination   APIからのサーバー削除の可否 
@@ -205,6 +215,9 @@ module NIFTY
       #  @option options [Array<String>] :instance_type    サーバータイプ
       #   許可値: mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #  @option options [Array<String>] :accounting_type  利用料金タイプ
+      #  @option options [String] :user_data               サーバー起動時スクリプト
+      #  @option options [Boolean] :base64_encoded         サーバー起動時スクリプトを自動的にBase64 エンコードするかどうか
+      #   許可値: true(base64エンコーディングする) | false(base64エンコーディングしない)
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -219,10 +232,14 @@ module NIFTY
           raise ArgumentError, "Invalid :accounting_type provided." unless ACCOUNTING_TYPE.include?(p.to_s)
         end unless blank?(options[:accounting_type])
 
+        user_data = extract_user_data(options)
+        options[:user_data] = user_data
+
         params = {'Action' => 'StartInstances'}
         params.merge!(pathlist('InstanceId', options[:instance_id]))
         params.merge!(pathlist('InstanceType', options[:instance_type]))
         params.merge!(pathlist('AccountingType', options[:accounting_type]))
+        params.merge!(opts_to_prms(options, [:user_data]))
 
         return response_generator(params)
       end
