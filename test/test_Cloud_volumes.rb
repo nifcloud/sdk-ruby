@@ -26,6 +26,7 @@ context "volumes" do
       1, 2, 3, 4, 5, 6
     ]
     @basic_create_volume_options = {:size => 1, :instance_id => 'server01'}
+    @accounting_type = ['1', '2']
 
     @describe_volumes_response_body = <<-RESPONSE
     <DescribeVolumesResponse xmlns="http://xxxx.nifty.com/xxx/xxx/">          
@@ -36,6 +37,8 @@ context "volumes" do
           <diskType>Disk40</diskType>    
           <snapshotId/>    
           <availabilityZone>ap-japan-1a</availabilityZone>    
+          <accountingType>1</accountingType>
+          <nextMonthAccountingType>1</nextMonthAccountingType>
           <status>in-use</status>    
           <createTime>2008-05-07T11:51:50.000Z</createTime>    
           <attachmentSet>    
@@ -60,6 +63,7 @@ context "volumes" do
           <availabilityZone>ap-japan-1a</availabilityZone>
           <status>creating</status>
           <createTime>2008-05-07T11:51:50.000Z</createTime>
+          <accountingType>1</accountingType>
     </CreateVolumeResponse>      
     RESPONSE
 
@@ -87,6 +91,13 @@ context "volumes" do
       <status>detaching</status>  
       <attachTime>2008-05-08T11:51:50.000Z</attachTime>  
     </DetachVolumeResponse>    
+    RESPONSE
+
+    @modify_volume_attribute_response_body = <<-RESPONSE
+      <ModifyVolumeAttributeResponse xmlns="http://xxxx.nifty.com/xxx/xxx/">
+        <requestId></requestId>
+        <return>true</return>
+      </ModifyVolumeAttributeResponse>
     RESPONSE
   end
 
@@ -143,10 +154,11 @@ context "volumes" do
                                    "AvailabilityZone" => "a",
                                    "VolumeId" => "a",
                                    "DiskType" => "1",
-                                   "InstanceId" => "a"
+                                   "InstanceId" => "a",
+                                   "AccountingType" => "1"
                                   ).returns stub(:body => @create_volume_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @create_volume_response_body, :is_a? => true)
-    response = @api.create_volume(:instance_id => "a", :size => 1, :snapshot_id => "a", :availability_zone => "a", :volume_id => "a", :disk_type => 1 )
+    response = @api.create_volume(:instance_id => "a", :size => 1, :snapshot_id => "a", :availability_zone => "a", :volume_id => "a", :disk_type => 1, :accounting_type => 1)
   end
 
   specify "create_volume - :size, instance_id正常" do
@@ -180,6 +192,13 @@ context "volumes" do
       lambda { @api.create_volume(@basic_create_volume_options.merge(:disk_type => type)) }.should.not.raise(NIFTY::ArgumentError)
     end
   end
+
+  specify "create_volume - :disk_type正常" do
+    @api.stubs(:exec_request).returns stub(:body => @create_volume_response_body, :is_a? => true)
+    @accounting_type.each do |type|
+      lambda { @api.create_volume(@basic_create_volume_options.merge(:accounting_type => type)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
   
   specify "create_volume - :size未指定" do
     lambda { @api.create_volume }.should.raise(NIFTY::ArgumentError)
@@ -196,6 +215,11 @@ context "volumes" do
     lambda { @api.create_volume(:size => 1) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.create_volume(:size => 1, :key_name => nil) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.create_volume(:size => 1, :key_name => '') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "create_volume - :accounting_type不正" do
+    lambda { @api.create_volume(@basic_create_volume_options.merge(:accounting_type => 'type')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.create_volume(@basic_create_volume_options.merge(:accounting_type => 3)) }.should.raise(NIFTY::ArgumentError)
   end
 
 
@@ -323,4 +347,61 @@ context "volumes" do
     lambda { @api.detach_volume(:volume_id => 'foo', :force => 1) }.should.raise(NIFTY::ArgumentError)
   end
 
+  # modify_volume_attribute
+  specify "modify_volume_attribute - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @modify_volume_attribute_response_body, :is_a? => true)
+    response = @api.modify_volume_attribute(:volume_id => "vol1", :attribute => 'accountingType', :value => '1')
+    response.return.should.equal "true"
+  end
+
+  specify "modify_volume_attribute - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with('Action' => 'ModifyVolumeAttribute', 
+                                   'VolumeId' => 'vol01', 
+                                   'Attribute' => 'accountingType',
+                                   'Value' => '1').returns stub(:body => @modify_volume_attribute_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @modify_volume_attribute_response_body, :is_a? => true)
+    response = @api.modify_volume_attribute(:volume_id => "vol01", :attribute => 'accountingType', :value => '1')
+  end
+
+  specify "modify_volume_attribute - :volume_id正常" do
+    @api.stubs(:exec_request).returns stub(:body => @modify_volume_attribute_response_body, :is_a? => true)
+    lambda { @api.modify_volume_attribute(:volume_id => 'foo', :attribute => 'accountingType', :value => '1') }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.modify_volume_attribute(:volume_id => 12345, :attribute => 'accountingType', :value => '1') }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "modify_volume_attribute - :attribute,:value正常" do
+    @api.stubs(:exec_request).returns stub(:body => @modify_volume_attribute_response_body, :is_a? => true)
+    { 'accountingType' => @accounting_type
+    }.each do |attr, arr|
+      arr.each do |val|
+        lambda { @api.modify_volume_attribute(:volume_id => "vol01", :attribute => attr, :value => val) }.should.not.raise(NIFTY::ArgumentError)
+      end
+    end
+  end
+
+  specify "modify_volume_attribute - :volume_id未指定" do
+    lambda { @api.modify_volume_attribute }.should.raise(NIFTY::ArgumentError)
+    [ nil, ''].each do |id|
+      lambda { @api.modify_volume_attribute(:volume_id => id) }.should.raise(NIFTY::ArgumentError)
+    end
+    lambda { @api.modify_volume_attribute }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "modify_volume_attribute - :attribute未指定/不正" do
+    lambda { @api.modify_volume_attribute(:volume_id => "vol01") }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.modify_volume_attribute(:volume_id => "vol01", :attribute => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.modify_volume_attribute(:volume_id => "vol01", :attribute => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.modify_volume_attribute(:volume_id => "vol01", :attribute => 'hoge') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.modify_volume_attribute(:volume_id => "vol01", :attribute => 3) }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "modify_volume_attribute - :value未指定/不正" do
+    attribute = %w(accountingType)
+    attribute.each do |attr|
+      lambda { @api.modify_volume_attribute(:volume_id => "i-10a64379", :attribute => attr ) }.should.raise(NIFTY::ArgumentError)
+      lambda { @api.modify_volume_attribute(:volume_id => "i-10a64379", :attribute => attr, :value => nil ) }.should.raise(NIFTY::ArgumentError)
+      lambda { @api.modify_volume_attribute(:volume_id => "i-10a64379", :attribute => attr, :value => 'hoge' ) }.should.raise(NIFTY::ArgumentError)
+      lambda { @api.modify_volume_attribute(:volume_id => "i-10a64379", :attribute => attr, :value => 3 ) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
 end
