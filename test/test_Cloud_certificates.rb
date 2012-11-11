@@ -24,15 +24,16 @@ context "certificates" do
       :post_name => 'post', :division_name => 'div'
     }
     @basic_create_ssl_cert = {
-      :fqdn => 'ccc.aaa.com', :count => 1, :validity_term => 6, :key_length => 1024, :organization_name => 'org', 
+      :fqdn => 'ccc.aaa.com', :cert_authority => 1, :count => 1, :validity_term => 6, :key_length => 1024, :organization_name => 'org', 
       :organization_unit_name => 'orgunit', :state_name => 'TOKYO', :location_name => 'loc'
     }
     @basic_upload_ssl_cert = {:certificate => 'cert', :key => 'key'}
 
     @valid_validity_term = [6, 12, 24, '6', '12', '24']
     @valid_key_length = [1024, 2048, '1024', '2048']
-    @valid_attribute = %w(count certState period keyLength uploadState description certInfo)
+    @valid_attribute = %w(certAuthority count certState period keyLength uploadState description certInfo)
     @valid_file_type = [1, 2, 3, '1', '2', '3']
+    @valid_cert_authority = [1, 2, '1', '2']
 
     @register_corporate_info_for_certificate_response_body = <<-RESPONSE
     <RegisterCorporateInfoForCertificateResponse xmlns="https://cp.cloud.nifty.com/api/">      
@@ -312,6 +313,7 @@ context "certificates" do
     @api.stubs(:make_request).with("Action" => "CreateSslCertificate",
                                    "FqdnId" => "a",
                                    "Fqdn" => "aaa.aaa.aaa",
+                                   "CertAuthority" => "1",
                                    "Count" => "1",
                                    "ValidityTerm" => "6",
                                    "KeyLength" => "1024",
@@ -323,7 +325,7 @@ context "certificates" do
                                    "CertInfo.EmailAddress" => "a"
                                   ).returns stub(:body => @create_ssl_certificate_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @create_ssl_certificate_response_body, :is_a? => true)
-    response = @api.create_ssl_certificate(:fqdn_id => "a", :fqdn => "aaa.aaa.aaa", :count => 1, :validity_term => 6, :key_length => 1024, :organization_name => "a", :organization_unit_name => "a", :country_name => "a", :state_name => "a", :location_name => "a", :email_address => "a")
+    response = @api.create_ssl_certificate(:fqdn_id => "a", :fqdn => "aaa.aaa.aaa", :cert_authority => 1, :count => 1, :validity_term => 6, :key_length => 1024, :organization_name => "a", :organization_unit_name => "a", :country_name => "a", :state_name => "a", :location_name => "a", :email_address => "a")
   end
 
   specify "create_ssl_certificate - :fqdn_id正常" do
@@ -337,6 +339,9 @@ context "certificates" do
     lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:count => 15)) }.should.not.raise(NIFTY::ArgumentError)
     lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:count => 30)) }.should.not.raise(NIFTY::ArgumentError)
     lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:count => '20')) }.should.not.raise(NIFTY::ArgumentError)
+    @valid_cert_authority.each do |ca|
+      lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:cert_authority => ca)) }.should.not.raise(NIFTY::ArgumentError)
+    end
     @valid_validity_term.each do |term|
       lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:validity_term => term)) }.should.not.raise(NIFTY::ArgumentError)
     end
@@ -363,6 +368,14 @@ context "certificates" do
     lambda { @api.create_ssl_certificate(:fqdn => nil) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.create_ssl_certificate(:fqdn => '') }.should.raise(NIFTY::ArgumentError)
     lambda { @api.create_ssl_certificate(:fqdn_id => '', :fqdn => '') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "create_ssl_certificate - :cert_authority未指定/不正" do
+    lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.reject{|k,v| k == :cert_authority}) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:cert_authority => nil)) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:cert_authority => '')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:cert_authority => 'hoge')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.create_ssl_certificate(@basic_create_ssl_cert.merge(:cert_authority => 3)) }.should.raise(NIFTY::ArgumentError)
   end
 
   specify "create_ssl_certificate - :count未指定" do

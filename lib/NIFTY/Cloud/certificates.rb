@@ -3,8 +3,9 @@ module NIFTY
     class Base < NIFTY::Base
       VALIDITY_TERM                   = ['6', '12', '24']
       KEY_LENGTH                      = ['1024', '2048']
-      CERTIFICATE_DESCRIBE_ATTRIBUTE  = ['count', 'certState', 'period', 'keyLength', 'uploadState', 'description', 'certInfo']
+      CERTIFICATE_DESCRIBE_ATTRIBUTE  = ['count', 'certState', 'period', 'keyLength', 'uploadState', 'description', 'certInfo', 'certAuthority']
       FILE_TYPE                       = ['1', '2', '3']
+      CERT_AUTHORITY                  = ['1', '2']
 
       # API「CreateSslCertificate」を実行し、SSL 証明書の新規作成または更新を行います。
       # 申請法人情報が未登録の場合は、エラーが返されます。
@@ -15,6 +16,8 @@ module NIFTY
       #
       #  @option options [String] :fqdn_id                  SSL証明書の識別子(必須)
       #  @option options [String] :fqdn                     FQDN(必須)
+      #  @option options [Integer] :cert_authority          認証局(必須)
+      #   許可値: 1 (cybertrust) | 2 (GeoTrust)
       #  @option options [Integer] :count                   SSL証明書の数量(必須)
       #   許可値: 1 - 30
       #  @option options [Integer] :validity_term           SSL証明書の有効月数(必須)
@@ -34,6 +37,7 @@ module NIFTY
       def create_ssl_certificate( options={} )
         raise ArgumentError, ":fqdn_id or :fqdn must be provided." if blank?(options[:fqdn_id]) && blank?(options[:fqdn])
         unless blank?(options[:fqdn])
+          raise ArgumentError, "No :cert_authority provided." if blank?(options[:cert_authority])
           raise ArgumentError, "No :count provided." if blank?(options[:count])
           raise ArgumentError, "No :validity_term provided." if blank?(options[:validity_term])
           raise ArgumentError, "No :key_length provided." if blank?(options[:key_length])
@@ -43,12 +47,13 @@ module NIFTY
           raise ArgumentError, "No :location_name provided." if blank?(options[:location_name])
         end
         raise ArgumentError, "Invalid :count provided." unless blank?(options[:count]) || ('1'..'30').to_a.include?(options[:count].to_s)
+        raise ArgumentError, "Invalid :cert_authority provided." unless blank?(options[:cert_authority]) || CERT_AUTHORITY.include?(options[:cert_authority].to_s)
         raise ArgumentError, "Invalid :validity_term provided." unless blank?(options[:validity_term]) || 
           VALIDITY_TERM.include?(options[:validity_term].to_s)
         raise ArgumentError, "Invalid :key_length provided." unless blank?(options[:key_length]) || KEY_LENGTH.include?(options[:key_length].to_s)
 
         params = {'Action' => 'CreateSslCertificate'}
-        params.merge!(opts_to_prms(options, [:fqdn_id, :fqdn, :count, :validity_term, :key_length]))
+        params.merge!(opts_to_prms(options, [:fqdn_id, :fqdn, :cert_authority, :count, :validity_term, :key_length]))
         params.merge!(opts_to_prms(options, [:organization_name, :organization_unit_name, :country_name, 
                                    :state_name, :location_name, :email_address], 'CertInfo'))
 
@@ -107,9 +112,9 @@ module NIFTY
       #
       #  @option options [String] :fqdn_id    SSL証明書の識別子(必須)
       #  @option options [String] :attribute  取得する情報の項目名
-      #   許可値: count(SSL証明書の数量を取得) | certState(SSL証明書の発行ステータスを取得) | period(SSL証明書の有効期間を取得) | 
-      #           keyLength(SSL証明書の鍵長を取得) | uploadState(SSL証明書の種別を取得) | description(SSL証明書のメモ情報を取得) | 
-      #           certInfo(SSL証明書の発行申請情報を取得)
+      #   許可値: certAuthority(SSL証明書の認証局を取得) | count(SSL証明書の数量を取得) | certState(SSL証明書の発行ステータスを取得) |
+      #           period(SSL証明書の有効期間を取得) | keyLength(SSL証明書の鍵長を取得) | uploadState(SSL証明書の種別を取得) |
+      #           description(SSL証明書のメモ情報を取得) | certInfo(SSL証明書の発行申請情報を取得)
       #   
       #  @return [Hash] レスポンスXML解析結果
       #  
