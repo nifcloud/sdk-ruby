@@ -115,7 +115,7 @@ http://cloud.nifty.com/api/rest/
 
 [ ACCESS_KEY         ] 公開キー                   (default: '<default access key>')
 [ SECRET_KEY         ] 秘密キー                   (default: '<default secret key>')
-[ ENDPOINT_URL       ] エンドポイント             (default: 'https://cp.cloud.nifty.com/api/1.7/')
+[ ENDPOINT_URL       ] エンドポイント             (default: 'https://cp.cloud.nifty.com/api/')
 [ PROXY_SERVER       ] プロキシサーバーURL        (default: nil)
 [ USER_AGENT         ] ユーザーエージェント       (default: 'NIFTY Cloud API Ruby SDK')
 [ MAX_RETRY          ] 最大リトライ回数           (default: 3)
