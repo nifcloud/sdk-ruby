@@ -357,7 +357,8 @@ context "instances" do
     { 'instanceType' => @valid_instance_type,
       'disableApiTermination' => [true, false, 'true', 'false'],
       'instanceName' => ['hoge'],
-      'description' => ['hoge']
+      'description' => ['hoge'],
+      'accountingType' => @accounting_type
     }.each do |attr, arr|
       arr.each do |val|
         lambda { @api.modify_instance_attribute(:instance_id => "i-10a64379", :attribute => attr, :value => val) }.should.not.raise(NIFTY::ArgumentError)

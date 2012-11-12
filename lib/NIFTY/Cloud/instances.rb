@@ -9,7 +9,7 @@ module NIFTY
       INSTANCES_DESCRIBE_ATTRIBUTE  = [
         'instanceType', 'disableApiTermination', 'blockDeviceMapping', 'accountingType', 'nextMonthAccountingType',
         'loadbalancing', 'copyInfo', 'autoscaling', 'ipType', 'groupId', 'description']
-      INSTANCES_MODIFY_ATTRIBUTE    = ['instanceType', 'disableApiTermination', 'instanceName', 'description', 'ipType', 'groupId']
+      INSTANCES_MODIFY_ATTRIBUTE    = ['instanceType', 'disableApiTermination', 'instanceName', 'description', 'ipType', 'groupId', 'accountingType']
       INSTANCES_IGNORED_PARAMS      = Regexp.union(/MinCount/, 
                                                    /MaxCount/, 
                                                    /AddisionalInfo/, 
@@ -74,12 +74,14 @@ module NIFTY
       #  @option options [String] :instance_id  サーバー名(必須)
       #  @option options [String] :attribute    更新対象の項目名(必須)
       #   許可値: instanceType(サーバータイプを更新) | disableApiTermination(API からのサーバー削除可否を更新) | instanceName(サーバー名を更新) | 
-      #           description(メモ情報を更新) | ipType(IP アドレスの固定化タイプを更新) | groupId(ファイアウォールグループを更新)
+      #           description(メモ情報を更新) | ipType(IP アドレスの固定化タイプを更新) | groupId(ファイアウォールグループを更新) |
+      #           accountingType(利用料金タイプを更新)
       #   
       #  @option options [String] :value        更新値(必須)
       #   許可値: (:attribute= instanceType) mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
       #           (:attribute= disableApiTermination) true | false 
       #           (:attribute= ipType) static | dynamic | none
+      #           (:attribute= accountingType) 1(月額課金) | 2(従量課金)
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -93,6 +95,7 @@ module NIFTY
         raise ArgumentError, "Invalid :value provided." if options[:attribute] == 'instanceType' && !INSTANCE_TYPE.include?(options[:value].to_s)
         raise ArgumentError, "Invalid :value provided." if options[:attribute] == 'disableApiTermination' && !BOOLEAN.include?(options[:value].to_s)
         raise ArgumentError, "Invalid :value provided." if options[:attribute] == 'ipType' && !IP_TYPE.include?(options[:value].to_s)
+        raise ArgumentError, "Invalid :value provided." if options[:attribute] == 'accountingType' && !ACCOUNTING_TYPE.include?(options[:value].to_s)
 
         params = {'Action' => 'ModifyInstanceAttribute'}
         params.merge!(opts_to_prms(options, [:instance_id, :attribute, :value]))
