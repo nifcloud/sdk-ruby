@@ -2,6 +2,48 @@
 ニフティクラウド SDK for Ruby
 -----------------------------
 
+2012-11-12 SDK for Ruby Version.1.8.beta1
+-------------------------------------------------------------------------------
+        * 1.8.beta1リリース
+	- API Version 1.8 に対応
+
+API Version.1.8 対応
+
+	* lib/NIFTY/Cloud/certificates.rb
+	* test/test_Cloud_certificates.rb
+	- describe_ssl_certificate_attribute, create_ssl_certificate で certAuthority を指定できるようにする (see #5)
+	
+	* lib/NIFTY/Cloud/instances.rb
+	* test/test_Cloud_instances.rb
+	- start_instances, reboot_instances で起動時スクリプトを指定できるようにする (see #1)
+	- NIFTY::Cloud::Base#describe_instance_attribute で nextMonthAccountingType を指定できるように修正する (see #7)
+	- IP タイプに "none" を追加する (see #2)
+	- サーバータイプ large24, large32, extra-large16, extra-large24, extra-large32 を追加する (see #3)
+	
+	* lib/NIFTY/Cloud/volumes.rb
+	* test/test_Cloud_volumes.rb
+	- create_volume, modify_volume_attribute で accounting_type を設定できるようにする (see #4)
+	
+	* lib/NIFTY/Cloud/load_balancers.rb
+	* test/test_Cloud_load_balancers.rb
+	- create_load_balancer, update_load_balancer で accounting_type を設定できるようにする (see #6)
+
+その他
+
+	* lib/NIFTY/Cloud/instances.rb
+	* test/test_Cloud_instances.rb
+	- run_instances で Windows のイメージ ID が指定された場合のみ :password を必須とみなすようにする (see #13)
+	
+	* lib/NIFTY/config.rb
+        * README.rdoc
+	- デフォルトの API エンドポイントを https://cp.cloud.nifty.com/api/1.7/ から https://cp.cloud.nifty.com/api/ へ変更する (see #14)
+	
+	* test/test_*.rb
+	- テストコードにマジックコメントでスクリプトエンコーディングを指定する (see #16)
+	
+	* lib/NIFTY/version.rb
+	- VERSIONを変更
+
 
 2011-07-31 SDK for Ruby Version.1.7
 -------------------------------------------------------------------------------
