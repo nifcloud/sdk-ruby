@@ -24,6 +24,7 @@ context "instances" do
     @windows_image_id = [12, 16, '12', '16']
 
     @basic_run_instances_options = {:security_group => "gr01", :image_id => 2, :key_name => 'foo', :password => 'password'}
+    @basic_import_instance_options = {:ovf => "dummy"}
 
     @run_instances_response_body = <<-RESPONSE
     <RunInstancesResponse xmlns="https://cp.cloud.nifty.com/api/1.3/">
@@ -217,6 +218,32 @@ context "instances" do
     <CancelCopyInstancesResponse xmlns="https://cp.cloud.nifty.com/api/">
       <requestId>f6dd8353-eb6b-6b4fd32e4f05</requestId>
     </CancelCopyInstancesResponse>
+    RESPONSE
+
+    @import_instance_response_body = <<-RESPONSE
+    <ImportInstanceResponse xmlns="https://cp.cloud.nifty.com/api/">
+     <conversionTask>
+      <conversionTaskId>import-n-sd-093rar3gl4</conversionTaskId>
+      <expirationTime>2012-10-13T19:17:28.799+09:00</expirationTime>
+      <importInstance>
+       <volumes>
+        <item>
+         <bytesConverted>0</bytesConverted>
+         <availabilityZone>east-11</availabilityZone>
+         <image>
+          <format>VMDK</format>
+          <size>266189212314</size>
+         </image>
+         <description/>
+         <status>active</status>
+         <statusMessage/>
+        </item>
+       </volumes>
+       <instanceId>server01</instanceId>
+       <description>memo</description>
+      </importInstance>
+     </conversionTask>
+    </ImportInstanceResponse>
     RESPONSE
   end
 
@@ -963,5 +990,108 @@ context "instances" do
     lambda { @api.cancel_copy_instances }.should.raise(NIFTY::ArgumentError)
     lambda { @api.cancel_copy_instances(:instance_id => nil) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.cancel_copy_instances(:instance_id => '') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  # import_instance
+  specify "import_instance - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    response = @api.import_instance(:ovf => "dummy")
+    response.conversionTask.conversionTaskId.should.equal "import-n-sd-093rar3gl4"
+    response.conversionTask.expirationTime.should.equal "2012-10-13T19:17:28.799+09:00"
+    response.conversionTask.importInstance.volumes.item[0].bytesConverted.should.equal "0"
+    response.conversionTask.importInstance.volumes.item[0].availabilityZone.should.equal "east-11"
+    response.conversionTask.importInstance.volumes.item[0].image.format.should.equal "VMDK"
+    response.conversionTask.importInstance.volumes.item[0].image["size"].should.equal "266189212314"
+    #response.conversionTask.importInstance.volumes.item[0].description.should.equal ""
+    response.conversionTask.importInstance.volumes.item[0].status.should.equal "active"
+    #response.conversionTask.importInstance.volumes.item[0].statusMessage.should.equal ""
+    response.conversionTask.importInstance.instanceId.should.equal "server01"
+    response.conversionTask.importInstance.description.should.equal "memo"
+  end
+
+  specify "import_instance - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with("Action" => "ImportInstance",
+                                   "SecurityGroup.1" => "gr1",
+                                   "SecurityGroup.2" => "gr2",
+                                   "InstanceType" => "mini",
+                                   "Placement.AvailabilityZone" => "east-12",
+                                   "DisableApiTermination" => "false",
+                                   "InstanceId" => "server01",
+                                   "Ovf" => "dummy",
+                                   "AccountingType" => "1",
+                                   "IpType" => "static"
+                                  ).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    response = @api.import_instance(:security_group => %w(gr1 gr2), :instance_type => "mini", :availability_zone => "east-12", :disable_api_termination => "false", :instance_id => "server01", :ovf => "dummy", :accounting_type => "1", :ip_type => "static")
+  end
+
+  specify "import_instance - :security_group正常" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:security_group => 'Group1')) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:security_group => 'default(Linux)')) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:security_group => 'default(Windows)')) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:security_group => %w(Group1 Group2 Group3))) }.should.not.raise(NIFTY::ArgumentError)
+  end
+  
+  specify "import_instance - :instance_type正常" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    @valid_instance_type.each do |type|
+      lambda { @api.import_instance(@basic_import_instance_options.merge(:instance_type => type)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+  
+  specify "import_instance - :availability_zone正常" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:availability_zone => 'ap-japan-1a')) }.should.not.raise(NIFTY::ArgumentError)
+  end
+  
+  specify "import_instance - :disable_api_termination正常" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:disable_api_termination => true)) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:disable_api_termination => false)) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "import_instance - :instance_id正常" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:instance_id => 'server01')) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "import_instance - :accounting_type正常" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    @accounting_type.each do |type|
+      lambda { @api.import_instance(@basic_import_instance_options.merge(:accounting_type => type)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "import_instance - :ip_type正常" do
+    @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
+    @valid_ip_type.each do |type|
+      lambda { @api.import_instance(@basic_import_instance_options.merge(:ip_type => type)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "import_instance - :security_group不正" do
+    lambda { @api.import_instance(:image_id => 10000, :key_name => "Keyname", :security_group => "Group_name") }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(:image_id => 10000, :key_name => "Keyname", :security_group => %w(Group1 Group_2)) }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "import_instance - :instance_type不正" do
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:instance_type => 'type')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:instance_type => 5)) }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "import_instance - :disable_api_termination不正" do
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:disable_api_termination => 'disable')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:disable_api_termination => 0)) }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "import_instance - :accounting_type不正" do
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:accounting_type => 3)) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:accounting_type => 'type')) }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "import_instance - :ip_type不正" do
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:ip_type => 'ip')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:ip_type => 5)) }.should.raise(NIFTY::ArgumentError)
   end
 end

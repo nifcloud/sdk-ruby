@@ -386,6 +386,57 @@ module NIFTY
 
         return response_generator(params)
       end
+
+
+      # API「ImportInstances」を実行し、指定したOVFファイルの情報に基づいて、サーバーインポートを予約します。
+      # 1回のリクエストで1台のサーバーが予約可能です。
+      #
+      # イメージ（VMDKファイル）は、別途アップロード領域へアップロードしてください（このAPIのレスポンスに含まれるタスクIDを指定します）。
+      #
+      # サーバーの作成には、時間がかかることがあります。
+      # API「DescribeInstances」のレスポンス値「instanceState」でサーバーのステータスを確認できます。
+      #
+      # インポートしたサーバーは通常ほかのサーバー作成と同様に課金されますが、ニフティクラウドの基本ディスク容量（Linux:30GB、Windows:40GB）を超えるディスクを持つ場合は100GB単位で追加料金が発生します。
+      #
+      # ニフティクラウドがサポートしないOS製品である、複数OSのサーバーであるなどの場合はインポートできず、エラーが返されます。
+      #
+      # インポートしたサーバーは、APIからの削除が可能です。
+      # APIからの削除を禁止したい場合は、インポート完了後にAPI「ModifyInstanceAttribute」を実行してください。
+      #
+      #  @option options [Array<String>] :security_group      適用するファイアフォールグループ名
+      #  @option options [String] :instance_type              サーバータイプ
+      #   許可値: mini | small | small2 | small4 | small8 | medium | medium4 | medium8 | medium16 | large | large8 | large16 | large24 | large32 | extra-large16 | extra-large24 | extra-large32
+      #  @option options [String] :availability_zone
+      #  @option options [Boolean] :disable_api_termination   APIからのサーバー削除の可否 
+      #   許可値: true(削除不可) | false(削除可)
+      #  @option options [String] :instance_id                サーバー名
+      #  @option options [String] :ovf                        OVFデータ 
+      #  @option options [String] :accounting_type            利用料金タイプ
+      #   許可値: 1(月額課金) | 2(従量課金)
+      #  @option options [String] :ip_type                    IPアドレスタイプ
+      #   許可値: static | dynamic | none
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   cancel_copy_instances(:instance_id => 'server01')
+      #
+      def import_instance( options={} )
+        raise ArgumentError, "No :ovf provided." if blank?(options[:ovf])
+        #raise ArgumentError, "No :security_group provided." if blank?(options[:security_group])
+        raise ArgumentError, "Invalid :security_group provided." unless blank?(options[:security_group]) || GROUP_NAME =~ options[:security_group].to_s
+        raise ArgumentError, "Invalid :instance_type provided." unless blank?(options[:instance_type]) || INSTANCE_TYPE.include?(options[:instance_type].to_s)
+        raise ArgumentError, "Invalid :disable_api_termination provided." unless blank?(options[:disable_api_termination]) || 
+          BOOLEAN.include?(options[:disable_api_termination].to_s)
+        raise ArgumentError, "Invalid :accounting_type provided." unless blank?(options[:accounting_type]) || ACCOUNTING_TYPE.include?(options[:accounting_type].to_s)
+        raise ArgumentError, "Invalid :ip_type provided." unless blank?(options[:ip_type]) || IP_TYPE.include?(options[:ip_type].to_s)
+
+        params = {'Action' => 'ImportInstance'}
+        params.merge!(pathlist('SecurityGroup', options[:security_group]))
+        params.merge!(opts_to_prms(options, [:instance_type, :disable_api_termination, :instance_id, :ovf, :accounting_type, :ip_type]))
+        params.merge!(opts_to_prms(options, [:availability_zone], 'Placement'))
+
+        return response_generator(params)
+      end
     end   # end of Base class
   end     # end of Cloud module
 end       # end of NIFTY module
