@@ -9,6 +9,8 @@ module NIFTY
       SECURITY_GROUPS_IGNORED_PARAMS = Regexp.union(/UserId/, 
                                                     /IpPermissions\.\d+\.ToPort/, 
                                                     /IpPermissions\.\d+\.Groups\.\d+\.UserId/)
+      SECURITY_GROUP_COURSE = ['1', '2']
+      NUMERIC = /^[0-9]+$/
 
       # API「AuthorizeSecurityGroupIngress」を実行し、指定したファイアウォールグループへ許可ルールを追加します。
       # 許可ルールの上限数を超える場合は、エラーが返されます。
@@ -333,9 +335,17 @@ module NIFTY
       # ファイアウォールグループを指定するためには、ファイアウォールグループ名が必要です。削除済みのファイアウォールグループを指定した、
       # 管理外のファイアウォールグループを指定したなど、無効なファイアウォールグループを指定した場合は、エラーが返されます。
       #
-      #  @option options [String] :group_name                 ファイアウォールグループ名(必須)
-      #  @option options [String] :group_name_update          ファイアウォールグループ名の変更
-      #  @option options [String] :group_description_update   ファイアウォールグループのメモの変更
+      # ファイアウォールグループの設定情報の更新には、時間がかかることがあります。
+      #
+      # API「DescribeSecurityGroups」のレスポンス値「groupStatus」でファイアウォールグループのステータスを確認できます。
+      # また、ファイアウォールグループのステータスが「適用済み」の場合、更新した情報が正しくファイアウォールグループに反映されているかの確認が必要です。
+      # 同じくAPI「DescribeSecurityGroups」のレスポンス値で確認できます。
+      #
+      #  @option options [String] :group_name                   ファイアウォールグループ名(必須)
+      #  @option options [String] :group_name_update            ファイアウォールグループ名の変更
+      #  @option options [String] :group_description_update     ファイアウォールグループのメモの変更
+      #  @option options [Integer] :group_log_limit_update      ファイアウォールグループのログ取得件数の変更
+      #  @option options [Boolean] :group_log_filter_net_bios   WindowsサーバのBroadcast通信ログの抑止状態
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -345,9 +355,54 @@ module NIFTY
         raise ArgumentError, "No :group_name provided." if blank?(options[:group_name])
         raise ArgumentError, "Invalid :group_name provided." unless GROUP_NAME =~ options[:group_name].to_s
         raise ArgumentError, "Invalid :group_name_update provided." unless blank?(options[:group_name_update]) || ALPHANUMERIC =~ options[:group_name_update].to_s
+        raise ArgumentError, "Invalid :group_log_limit_update provided." unless blank?(options[:group_log_limit_update]) || NUMERIC =~ options[:group_log_limit_update].to_s
+        raise ArgumentError, "Invalid :group_log_filter_net_bios provided." unless blank?(options[:group_log_filter_net_bios]) || BOOLEAN.include?(options[:group_log_filter_net_bios].to_s)
 
         params = {'Action' => 'UpdateSecurityGroup'}
-        params.merge!(opts_to_prms(options, [:group_name, :group_name_update, :group_description_update]))
+        params.merge!(opts_to_prms(options, [:group_name, :group_name_update, :group_description_update, :group_log_limit_update, :group_log_filter_net_bios]))
+
+        return response_generator(params)
+      end
+
+
+      # API「UpdateSecurityGroupOption」を実行し、ファイアウォールのオプション情報を更新します。
+      #
+      # 利用コースを変更する場合は、注意事項に同意しなければ、エラーが返されます。
+      #
+      # （※）当該APIはv1.11以降、正常応答では常に応答フィールドreturnにtrueが返されます。
+      #
+      #  @option options [String] :course_update                 有償・無償の指定
+      #   許可値: 1(無償) | 2(有償)
+      #  @option options [Boolean] :agreement                    注意事項に同意(:course_updateが2の場合は必須)
+      #  @option options [Integer] :security_group_limit_update  ファイアウォールグループ数上限
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   update_security_group_option(:course_update => 2, :agreement => true)
+      #
+      def update_security_group_option( options={} )
+        raise ArgumentError, "No :agreement provided." if options[:course_update].to_s == '2' && blank?(options[:agreement])
+        raise ArgumentError, "Invalid :course_update provided." unless blank?(options[:course_update]) || SECURITY_GROUP_COURSE.include?(options[:course_update].to_s)
+        raise ArgumentError, "Invalid :agreement provided." unless blank?(options[:agreement]) || BOOLEAN.include?(options[:agreement].to_s)
+        raise ArgumentError, "Invalid :security_group_limit_update provided." unless blank?(options[:security_group_limit_update]) || NUMERIC =~ options[:security_group_limit_update].to_s
+
+        params = {'Action' => 'UpdateSecurityGroupOption'}
+        params.merge!(opts_to_prms(options, [:course_update, :security_group_limit_update]))
+        params.merge!(opts_to_prms(options, [:agreement], 'CourseUpdate'))
+
+        return response_generator(params)
+      end
+
+
+      # API「DescribeSecurityGroupOption」を実行し、ファイアウォールのオプション利用情報を取得します。
+      #
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   describe_security_group_option()
+      #
+      def describe_security_group_option( options={} )
+        params = {'Action' => 'DescribeSecurityGroupOption'}
 
         return response_generator(params)
       end

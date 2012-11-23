@@ -20,6 +20,8 @@ context "security_groups" do
 
     @valid_ip_protocol = %w(TCP UDP ICMP SSH HTTP HTTPS SMTP POP3 IMAP)
     @valid_in_out = %w(IN In in Out Out out)
+    @valid_course_update = [1, 2, '1', '2']
+    @valid_boolean = [true, false, 'true', 'false']
 
     @basic_ip_permissions = {:ip_protocol => 'HTTP', :group_name => 'gr2'}
     @basic_auth_security_params = {:group_name => 'gr1', :ip_permissions => @basic_ip_permissions}
@@ -85,6 +87,10 @@ context "security_groups" do
               <instanceId>server02</instanceId>    
             </member>      
           </instances>        
+          <groupRuleLimit>10</groupRuleLimit>
+          <groupLogLimit>1000</groupLogLimit>
+          <groupLogFilterNetBios>true</groupLogFilterNetBios>
+          <availabilityZone>east-11</availabilityZone>
         </item>          
       </securityGroupInfo>            
     </DescribeSecurityGroupsResponse>              
@@ -139,6 +145,21 @@ context "security_groups" do
       <log>2011-01-05T08:53:29+09:00 Altor_VNF time=1294217609140 fw_id=4 src_ip=10.0.6.201 src_port=68 dst_ip=10.0.4.11  dst_port=67 ip_proto=17 action=accept vm_id=16853 rule_id=52 type=fw
 2011-01-09T11:21:53+09:00 Altor_VNF time=2297218603613 fw_id=4 src_ip=10.0.6.201 src_port=68 dst_ip=10.0.4.11  dst_port=67 ip_proto=17 action=accept vm_id=16853 rule_id=52 type=fw</log>
     </DescribeSecurityActivitiesResponse>                    
+    RESPONSE
+
+    @update_security_group_option_response_body = <<-RESPONSE
+    <UpdateSecurityGroupOptionResponse xmlns="https://cp.cloud.nifty.com/api/">
+      <requestId>320fc738-a1c7-4a2f-abcb-20813a4e997c</requestId>
+      <return>true</return>
+    </UpdateSecurityGroupOptionResponse>
+    RESPONSE
+
+    @describe_security_group_option_response_body = <<-RESPONSE
+    <DescribeSecurityGroupOptionResponse xmlns="https://cp.cloud.nifty.com/api/">
+      <requestId>320fc738-a1c7-4a2f-abcb-20813a4e997c</requestId>
+      <course>2</course>
+      <securityGroupLimit>25</securityGroupLimit>
+    </DescribeSecurityGroupOptionResponse>
     RESPONSE
   end
 
@@ -222,10 +243,12 @@ context "security_groups" do
     @api.stubs(:make_request).with("Action" => "UpdateSecurityGroup",
                                    "GroupName" => "a",
                                    "GroupNameUpdate" => "a",
-                                   "GroupDescriptionUpdate" => "a"
+                                   "GroupDescriptionUpdate" => "a",
+                                   "GroupLogLimitUpdate" => "1000",
+                                   "GroupLogFilterNetBios" => "true"
                                   ).returns stub(:body => @update_security_group_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @update_security_group_response_body, :is_a? => true)
-    response = @api.update_security_group(:group_name => "a", :group_name_update => "a", :group_description_update => "a")
+    response = @api.update_security_group(:group_name => "a", :group_name_update => "a", :group_description_update => "a", :group_log_limit_update => 1000, :group_log_filter_net_bios => true)
   end
 
   specify "update_security_group - :group_name正常" do
@@ -244,12 +267,40 @@ context "security_groups" do
     @api.stubs(:exec_request).returns stub(:body => @update_security_group_response_body, :is_a? => true)
     lambda { @api.update_security_group(:group_name => 'foo', :group_description_update => 'テスト') }.should.not.raise(NIFTY::ArgumentError)
   end
+
+  specify "update_security_group - :group_log_limit_update正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_response_body, :is_a? => true)
+    [1, 1000, '1', '1000'].each do |limit|
+      lambda { @api.update_security_group(:group_name => 'foo', :group_log_limit_update => limit) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_security_group - :group_log_filter_net_bios正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_response_body, :is_a? => true)
+    @valid_boolean.each do |boolean|
+      lambda { @api.update_security_group(:group_name => 'foo', :group_log_filter_net_bios => boolean) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
   
   specify "update_security_group - :group_name未指定/不正" do
     lambda { @api.update_security_group }.should.raise(NIFTY::ArgumentError)
     lambda { @api.update_security_group(:group_name => nil) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.update_security_group(:group_name => '') }.should.raise(NIFTY::ArgumentError)
     lambda { @api.update_security_group(:group_name => 'Group_name') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_security_group - :group_log_limit_update不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_response_body, :is_a? => true)
+    ['hoge'].each do |limit|
+      lambda { @api.update_security_group(:group_name => 'foo', :group_log_limit_update => limit) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_security_group - :group_log_filter_net_bios不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_response_body, :is_a? => true)
+    [1, 'foobar'].each do |boolean|
+      lambda { @api.update_security_group(:group_name => 'foo', :group_log_filter_net_bios => boolean) }.should.raise(NIFTY::ArgumentError)
+    end
   end
 
 
@@ -275,6 +326,10 @@ context "security_groups" do
     response.securityGroupInfo.item[0].ipPermissions.item[1].groups.item[0].groupName.should.equal 'Web'
     response.securityGroupInfo.item[0].instances.member[0].instanceId[0].should.equal 'server01'
     response.securityGroupInfo.item[0].instances.member[0].instanceId[1].should.equal 'server02'
+    response.securityGroupInfo.item[0].groupRuleLimit.should.equal '10'
+    response.securityGroupInfo.item[0].groupLogLimit.should.equal '1000'
+    response.securityGroupInfo.item[0].groupLogFilterNetBios.should.equal 'true'
+    response.securityGroupInfo.item[0].availabilityZone.should.equal 'east-11'
   end
 
   specify "describe_security_groups - パラメータが正しく作られるか" do
@@ -696,5 +751,89 @@ context "security_groups" do
     lambda { @api.describe_security_activities(:group_name => 'foo', :range_end_number => 'foo') }.should.raise(NIFTY::ArgumentError)
     lambda { @api.describe_security_activities(:group_name => 'foo', :range_end_number => 0) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.describe_security_activities(:group_name => 'foo', :range_start_number => 5, :range_end_number => 1) }.should.raise(NIFTY::ArgumentError)
+  end
+
+
+  # update_security_group_option
+  specify "update_security_group_option - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    response = @api.update_security_group_option(:group_name => 'default(Linux)')
+    response.requestId.should.equal '320fc738-a1c7-4a2f-abcb-20813a4e997c'
+    response.return.should.equal 'true'
+  end
+
+  specify "update_security_group_option - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with("Action" => "UpdateSecurityGroupOption",
+                                   "CourseUpdate" => "2",
+                                   "CourseUpdate.Agreement" => "true",
+                                   "SecurityGroupLimitUpdate" => "20"
+                                  ).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    response = @api.update_security_group_option(:course_update => 2, :agreement => true, :security_group_limit_update => 20)
+  end
+
+  specify "update_security_group_option - :course_update正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    @valid_course_update.each do |course_update|
+      lambda { @api.update_security_group_option(:course_update => course_update, :agreement => true) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_security_group_option - :agreement正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    @valid_boolean.each do |agreement|
+      lambda { @api.update_security_group_option(:agreement => agreement) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_security_group_option - :security_group_limit_update正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    [1, 1000, '1', '1000'].each do |limit|
+      lambda { @api.update_security_group_option(:security_group_limit_update => limit) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_security_group_option - :course_update不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    [3 ,'hoge'].each do |course_update|
+      lambda { @api.update_security_group_option(:course_update => course_update, :agreement => true) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_security_group_option - :agreement不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    [1, 'fuga'].each do |agreement|
+      lambda { @api.update_security_group_option(:agreement => agreement) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_security_group_option - :agreement未指定 - :course_update=2指定時" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    [2, '2'].each do |x|
+      lambda { @api.update_security_group_option(:course_update => x) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+
+  specify "update_security_group_option - :security_group_limit_update不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_security_group_option_response_body, :is_a? => true)
+    ['foobar'].each do |limit|
+      lambda { @api.update_security_group_option(:security_group_limit_update => limit) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  # describe_security_group_option
+  specify "describe_security_group_option - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @describe_security_group_option_response_body, :is_a? => true)
+    response = @api.describe_security_group_option(:group_name => 'default(Linux)')
+    response.requestId.should.equal '320fc738-a1c7-4a2f-abcb-20813a4e997c'
+    response.course.should.equal '2'
+    response.securityGroupLimit.should.equal '25'
+  end
+
+  specify "describe_security_group_option - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with("Action" => "DescribeSecurityGroupOption").returns stub(:body => @describe_security_group_option_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @describe_security_group_option_response_body, :is_a? => true)
+    response = @api.describe_security_group_option()
   end
 end
