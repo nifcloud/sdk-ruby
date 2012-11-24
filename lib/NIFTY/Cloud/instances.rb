@@ -163,6 +163,8 @@ module NIFTY
       #   許可値: 半角英数字
       #  @option options [String] :ip_type                    IPアドレスタイプ
       #   許可値: static | dynamic | none
+      #  @option options [Boolean] :agreement                 Red Hat Enterprise Linux 5.8 64bit / 6.3 64bit を指定した場合の同意
+      #   許可値: true (同意する) | false (同意しない)
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -185,6 +187,7 @@ module NIFTY
         raise ArgumentError, "Invalid :accounting_type provided." unless blank?(options[:accounting_type]) || ACCOUNTING_TYPE.include?(options[:accounting_type].to_s)
         raise ArgumentError, "Invalid :ip_type provided." unless blank?(options[:ip_type]) || IP_TYPE.include?(options[:ip_type].to_s)
         raise ArgumentError, ":base64_encoded must be 'true' or 'false'." unless [true, false].include?(options[:base64_encoded])
+        raise ArgumentError, "Invalid :agreement provided." unless blank?(options[:agreement]) || BOOLEAN.include?(options[:agreement].to_s)
 
         user_data = extract_user_data(options)
         options[:user_data] = user_data
@@ -200,7 +203,7 @@ module NIFTY
                                      :ebs_no_device => 'Ebs.NoDevice' })) unless blank?(options[:block_device_mapping])
         params.merge!(opts_to_prms(options, [:image_id, :min_count, :max_count, :key_name, :additional_info, :user_data, :addressing_type,
                                         :instance_type, :kernel_id, :ramdisk_id, :subnet_id, :disable_api_termination, :instance_initiated_shutdown_behavior,
-                                        :accounting_type, :instance_id, :admin, :password, :ip_type]))
+                                        :accounting_type, :instance_id, :admin, :password, :ip_type, :agreement]))
         params.merge!(opts_to_prms(options, [:availability_zone, :group_name], 'Placement'))
 
         params.reject! {|k, v| INSTANCES_IGNORED_PARAMS =~ k } if @@ignore_amz_params

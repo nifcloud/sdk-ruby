@@ -22,6 +22,7 @@ context "instances" do
     @valid_ip_type = %w(static dynamic none)
     @accounting_type = [1, 2, '1', '2']
     @windows_image_id = [12, 16, '12', '16']
+    @valid_agreement = [true, false, 'true', 'false']
 
     @basic_run_instances_options = {:security_group => "gr01", :image_id => 2, :key_name => 'foo', :password => 'password'}
     @basic_import_instance_options = {:ovf => "dummy"}
@@ -482,7 +483,8 @@ context "instances" do
                                    'InstanceId' => 'server01',
                                    'Admin' => 'admin',
                                    'Password' => 'pass',
-                                   'IpType' => 'static'
+                                   'IpType' => 'static',
+                                   'Agreement' => 'true'
                                    ).returns stub(:body => @run_instances_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @run_instances_response_body, :is_a? => true)
     response = @api.run_instances(:image_id => 1, :min_count => 1, :max_count => 3, :key_name => 'key', :security_group => %w(gr1 gr2), :user_data => 'data',
@@ -493,7 +495,7 @@ context "instances" do
                                    {:device_name => 'dev2', :virtual_name => 'vir2', :ebs_snapshot_id => 'snap2', :ebs_volume_size => 'size2', 
                                      :ebs_delete_on_termination => 'del2', :ebs_no_device => 'nodev2'}], 
                                  :monitoring_enabled => 'en', :subnet_id => 'sub', :disable_api_termination => false, :instance_initiated_shutdown_behavior => 'aaa', 
-                                 :accounting_type => 1, :instance_id => 'server01', :admin => 'admin', :password => 'pass', :ip_type => 'static')
+                                 :accounting_type => 1, :instance_id => 'server01', :admin => 'admin', :password => 'pass', :ip_type => 'static', :agreement => true)
   end
 
   specify "run_instances - :image_id, :key_name, :password正常" do
@@ -623,6 +625,13 @@ context "instances" do
     end
   end
   
+  specify "run_instances - :agreement正常" do
+    @api.stubs(:exec_request).returns stub(:body => @run_instances_response_body, :is_a? => true)
+    @valid_agreement.each do |agreement|
+      lambda { @api.run_instances(@basic_run_instances_options.merge(:agreement => agreement)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+  
   specify "run_instances - :image_id未指定/不正" do
     lambda { @api.run_instances }.should.raise(NIFTY::ArgumentError)
     lambda { @api.run_instances(:image_id => '') }.should.raise(NIFTY::ArgumentError)
@@ -670,6 +679,11 @@ context "instances" do
   specify "run_instances - :ip_type不正" do
     lambda { @api.run_instances(@basic_run_instances_options.merge(:ip_type => 'ip')) }.should.raise(NIFTY::ArgumentError)
     lambda { @api.run_instances(@basic_run_instances_options.merge(:ip_type => 5)) }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "run_instances - :agreement不正" do
+    lambda { @api.run_instances(@basic_run_instances_options.merge(:agreement => 'agree')) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.run_instances(@basic_run_instances_options.merge(:agreement => 1)) }.should.raise(NIFTY::ArgumentError)
   end
 
 
