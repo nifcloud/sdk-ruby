@@ -23,6 +23,8 @@ context "load_balancers" do
     @valid_network_volume = [10, 20, 30, 40, 100, 200, '10', '20', '30', '40', '100', '200']
     @valid_ip_version = %w(v4 v6)
     @accounting_type = %w(1 2)
+    @session_stickiness_expiration_period = %w(3 5 10 15 30)
+    @sorry_page_status_code = %w(200 503)
 
     @basic_create_lb_params = {
       :load_balancer_name => 'lb01',
@@ -136,6 +138,19 @@ context "load_balancers" do
             <CreatedTime>2010-05-17T11:22:33.456Z</CreatedTime>    
             <AccountingType>1</AccountingType>
             <NextMonthAccountingType>1</NextMonthAccountingType>
+            <Option>
+              <SessionStickinessPolicy>
+                <Enabled>true</Enabled>
+                <ExpirationPeriod>10</ExpirationPeriod>
+              </SessionStickinessPolicy>
+              <SorryPage>
+                <Enabled>true</Enabled>
+                <StatusCode>200</StatusCode>
+              </SorryPage>
+              <MobileFilter> 
+                <Enabled>true</Enabled>
+              </MobileFilter>
+            </Option>
           </member>      
         </LoadBalancerDescriptions>        
         <LoadBalancerDescriptions>        
@@ -176,6 +191,19 @@ context "load_balancers" do
             <CreatedTime>2010-05-17T11:22:43.789Z</CreatedTime>    
             <AccountingType>1</AccountingType>
             <NextMonthAccountingType>1</NextMonthAccountingType>
+            <Option>
+              <SessionStickinessPolicy>
+                <Enabled>true</Enabled>
+                <ExpirationPeriod>10</ExpirationPeriod>
+              </SessionStickinessPolicy>
+              <SorryPage>
+                <Enabled>true</Enabled>
+                <StatusCode>200</StatusCode>
+              </SorryPage>
+              <MobileFilter> 
+                <Enabled>true</Enabled>
+              </MobileFilter>
+            </Option>
           </member>      
         </LoadBalancerDescriptions>        
       </DescribeLoadBalancersResult>          
@@ -299,6 +327,41 @@ context "load_balancers" do
         <RequestId>f6dd8353-eb6b-6b4fd32e4f05</RequestId>      
       </ResponseMetadata>        
     </SetFilterForLoadBalancerResponse>          
+    RESPONSE
+
+    @update_load_balancer_option_response_body = <<-RESPONSE
+    <UpdateLoadBalancerOptionResponse xmlns="https://cp.cloud.nifty.com/api/">
+      <ResponseMetadata>
+        <RequestId>f6dd8353-eb6b-6b4fd32e4f05</RequestId>
+      </ResponseMetadata>
+    </UpdateLoadBalancerOptionResponse>
+    RESPONSE
+
+    @set_load_balancer_listener_ssl_certificate_response_body = <<-RESPONSE
+    <SetLoadBalancerListenerSSLCertificateResponse xmlns="https://cp.cloud.nifty.com/api/">
+      <SetLoadBalancerListenerSSLCertificateResult />
+      <ResponseMetadata>
+        <RequestId>f6dd8353-eb6b-6b4fd32e4f05</RequestId>
+      </ResponseMetadata>
+    </SetLoadBalancerListenerSSLCertificateResponse>
+    RESPONSE
+
+    @unset_load_balancer_listener_ssl_certificate_response_body = <<-RESPONSE
+    <UnsetLoadBalancerListenerSSLCertificateResponse xmlns="https://cp.cloud.nifty.com/api/">
+      <UnsetLoadBalancerListenerSSLCertificateResult />
+      <ResponseMetadata>
+        <RequestId>f6dd8353-eb6b-6b4fd32e4f05</RequestId>
+      </ResponseMetadata>
+    </UnsetLoadBalancerListenerSSLCertificateResponse>
+    RESPONSE
+
+    @clear_load_balancer_session_response_body = <<-RESPONSE
+    <ClearLoadBalancerSessionResponse xmlns="https://cp.cloud.nifty.com/api/">
+      <ClearLoadBalancerSessionResult />
+      <ResponseMetadata>
+        <RequestId>f6dd8353-eb6b-6b4fd32e4f05</RequestId>
+      </ResponseMetadata>
+    </ClearLoadBalancerSessionResponse>
     RESPONSE
   end
 
@@ -632,6 +695,11 @@ context "load_balancers" do
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Filter.IPAddresses.member[1].should.equal '111.111.111.112'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].AvailabilityZones.member[0].should.equal 'ap-japan-1a'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].CreatedTime.should.equal '2010-05-17T11:22:33.456Z'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.Enabled.should.equal 'true'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.ExpirationPeriod.should.equal '10'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SorryPage.Enabled.should.equal 'true'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SorryPage.StatusCode.should.equal '200'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.MobileFilter.Enabled.should.equal 'true'
 
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].LoadBalancerName.should.equal 'lb0001'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].DNSName.should.equal '10.0.5.222'
@@ -651,6 +719,11 @@ context "load_balancers" do
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].Filter.IPAddresses.member[0].should.equal '*.*.*.*'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].AvailabilityZones.member[0].should.equal 'ap-japan-1a'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].CreatedTime.should.equal '2010-05-17T11:22:43.789Z'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.Enabled.should.equal 'true'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.ExpirationPeriod.should.equal '10'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SorryPage.Enabled.should.equal 'true'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SorryPage.StatusCode.should.equal '200'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.MobileFilter.Enabled.should.equal 'true'
 
     response.ResponseMetadata.RequestId.should.equal 'f6dd8353-eb6b-6b4fd32e4f05'
   end
@@ -1213,5 +1286,288 @@ context "load_balancers" do
     lambda { @api.set_filter_for_load_balancer(@basic_set_filter_params.merge(:filter_type => 0)) }.should.raise(NIFTY::ArgumentError)
   end
 
+
+  # update_load_balancer_option
+  specify "update_load_balancer_option - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    response = @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 80)
+    response.ResponseMetadata.RequestId.should.equal 'f6dd8353-eb6b-6b4fd32e4f05'
+  end
+
+  specify "update_load_balancer_option - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with("Action" => "UpdateLoadBalancerOption",
+                                   "LoadBalancerName" => "a",
+                                   "LoadBalancerPort" => "80",
+                                   "InstancePort" => "80",
+                                   "SessionStickinessOptionUpdate.Enable" => "true",
+                                   "SessionStickinessOptionUpdate.ExpirationPeriod" => "3",
+                                   "SorryPageOptionUpdate.Enable" => "true",
+                                   "SorryPageOptionUpdate.StatusCode" => "200",
+                                   "MobileFilterOptionUpdate.Enable" => "true"
+                                  ).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    response = @api.update_load_balancer_option(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80, :session_stickiness_enable => true, :session_stickiness_expiration_period => 3, :sorry_page_enable => true, :sorry_page_status_code => 200, :mobile_filter_enable => true)
+  end
+
+  specify "update_load_balancer_option - :load_balancer_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => port, :instance_port => 80) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_load_balancer_option - :instance_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => port) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_load_balancer_option - :session_stickiness_enable,:session_stickiness_expiration_period正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    @session_stickiness_expiration_period.each do |period|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => true, :session_stickiness_expiration_period => period)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => false)) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_load_balancer_option - :sorry_page_enable,:sorry_page_status_code正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    @sorry_page_status_code.each do |code|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:sorry_page_enable => true, :sorry_page_status_code => code)) }.should.not.raise(NIFTY::ArgumentError)
+    end
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:sorry_page_enable => false)) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_load_balancer_option - :mobile_filter_enable正常" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:mobile_filter_enable => true)) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:mobile_filter_enable => false)) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_load_balancer_option - :load_balancer_name未指定" do
+    lambda { @api.update_load_balancer_option }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => '') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_load_balancer_option - :load_balancer_port未指定/不正" do
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_load_balancer_option - :instance_port未指定/不正" do
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "update_load_balancer_option - :session_stickiness_enable,:session_stickiness_expiration_period不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => true)) }.should.raise(NIFTY::ArgumentError)
+    [1000, 'hoge'].each do |enable|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => enable, :session_stickiness_expiration_period => '3')) }.should.raise(NIFTY::ArgumentError)
+    end
+    [1000, 'hoge'].each do |period|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_expiration_period => period)) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_load_balancer_option - :sorry_page_enable,:sorry_page_status_code不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:sorry_page_enable => true)) }.should.raise(NIFTY::ArgumentError)
+    [1000, 'hoge'].each do |enable|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:sorry_page_enable => enable, :sorry_page_status_code => '200')) }.should.raise(NIFTY::ArgumentError)
+    end
+    [1000, 'hoge'].each do |code|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:sorry_page_status_code => code)) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "update_load_balancer_option - :mobile_filter_enable不正" do
+    @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
+    [1000, 'hoge'].each do |enable|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:mobile_filter_enable => enable)) }.should.raise(NIFTY::ArgumentError)
+    end
+  end
+
+
+  # set_load_balancer_listener_ssl_certificate
+  specify "set_load_balancer_listener_ssl_certificate - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @set_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    response = @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 80, :ssl_certificate_id => 111)
+    response.ResponseMetadata.RequestId.should.equal 'f6dd8353-eb6b-6b4fd32e4f05'
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with("Action" => "SetLoadBalancerListenerSSLCertificate",
+                                   "LoadBalancerName" => "a",
+                                   "LoadBalancerPort" => "80",
+                                   "InstancePort" => "80",
+                                   "SSLCertificateId" => "111"
+                                  ).returns stub(:body => @set_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @set_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    response = @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80, :ssl_certificate_id => 111)
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - :load_balancer_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @set_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => port, :instance_port => 80, :ssl_certificate_id => 111) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - :instance_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @set_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => port, :ssl_certificate_id => 111) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - :ssl_certificate_id正常" do
+    @api.stubs(:exec_request).returns stub(:body => @set_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 80, :ssl_certificate_id => 111) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - :load_balancer_name未指定" do
+    lambda { @api.set_load_balancer_listener_ssl_certificate }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => '') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - :load_balancer_port未指定/不正" do
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - :instance_port未指定/不正" do
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "set_load_balancer_listener_ssl_certificate - :ssl_certificate_id未指定" do
+    lambda { @api.set_load_balancer_listener_ssl_certificate(@basic_set_filter_params) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(@basic_set_filter_params.merge(:ssl_certificate_id => nil)) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.set_load_balancer_listener_ssl_certificate(@basic_set_filter_params.merge(:ssl_certificate_id => '')) }.should.raise(NIFTY::ArgumentError)
+  end
+
+
+  # unset_load_balancer_listener_ssl_certificate
+  specify "unset_load_balancer_listener_ssl_certificate - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @unset_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    response = @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 80)
+    response.ResponseMetadata.RequestId.should.equal 'f6dd8353-eb6b-6b4fd32e4f05'
+  end
+
+  specify "unset_load_balancer_listener_ssl_certificate - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with("Action" => "UnsetLoadBalancerListenerSSLCertificate",
+                                   "LoadBalancerName" => "a",
+                                   "LoadBalancerPort" => "80",
+                                   "InstancePort" => "80"
+                                  ).returns stub(:body => @unset_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @unset_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    response = @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80)
+  end
+
+  specify "unset_load_balancer_listener_ssl_certificate - :load_balancer_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @unset_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => port, :instance_port => 80) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "unset_load_balancer_listener_ssl_certificate - :instance_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @unset_load_balancer_listener_ssl_certificate_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => port) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "unset_load_balancer_listener_ssl_certificate - :load_balancer_name未指定" do
+    lambda { @api.unset_load_balancer_listener_ssl_certificate }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => '') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "unset_load_balancer_listener_ssl_certificate - :load_balancer_port未指定/不正" do
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "unset_load_balancer_listener_ssl_certificate - :instance_port未指定/不正" do
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+
+  # clear_load_balancer_session
+  specify "clear_load_balancer_session - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @clear_load_balancer_session_response_body, :is_a? => true)
+    response = @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 80)
+    response.ResponseMetadata.RequestId.should.equal 'f6dd8353-eb6b-6b4fd32e4f05'
+  end
+
+  specify "clear_load_balancer_session - パラメータが正しく作られるか" do
+    @api.stubs(:make_request).with("Action" => "ClearLoadBalancerSession",
+                                   "LoadBalancerName" => "a",
+                                   "LoadBalancerPort" => "80",
+                                   "InstancePort" => "80"
+                                  ).returns stub(:body => @clear_load_balancer_session_response_body, :is_a? => true)
+    @api.stubs(:exec_request).returns stub(:body => @clear_load_balancer_session_response_body, :is_a? => true)
+    response = @api.clear_load_balancer_session(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80)
+  end
+
+  specify "clear_load_balancer_session - :load_balancer_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @clear_load_balancer_session_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => port, :instance_port => 80) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "clear_load_balancer_session - :instance_port正常" do
+    @api.stubs(:exec_request).returns stub(:body => @clear_load_balancer_session_response_body, :is_a? => true)
+    @valid_port.each do |port|
+      lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => port) }.should.not.raise(NIFTY::ArgumentError)
+    end
+  end
+
+  specify "clear_load_balancer_session - :load_balancer_name未指定" do
+    lambda { @api.clear_load_balancer_session }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => '') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "clear_load_balancer_session - :load_balancer_port未指定/不正" do
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
+
+  specify "clear_load_balancer_session - :instance_port未指定/不正" do
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 80) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => nil) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => '') }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 65536) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.clear_load_balancer_session(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 'foo') }.should.raise(NIFTY::ArgumentError)
+  end
 end
 

@@ -9,6 +9,8 @@ module NIFTY
       LOAD_BALANCER_NAME      = /^[a-zA-Z0-9]{1,15}$/
       LOAD_BALANCERS_IGNORED_PARAMS = Regexp.union(/AvailabilityZones .member.*/, 
                                                    /HealthCheck .Timeout/)
+      LOAD_BALANCER_SESSION_STICKINESS_EXPIRATION_PERIOD = ['3', '5', '10', '15', '30']
+      LOAD_BALANCER_SORRY_PAGE_STATUS_CODE = ['200', '503']
 
       # API「ConfigureHealthCheck」を実行し、指定したロードバランサーのヘルスチェックの設定を変更します。
       # ロードバランサーを指定するためには、ロードバランサー名・ポート番号が必要です。削除済みのロードバランサーを指定した、
@@ -433,6 +435,182 @@ module NIFTY
         params.merge!(opts_to_prms(options, [:load_balancer_name, :network_volume_update, :accounting_type_update]))
         params.merge!(opts_to_prms(options, [:load_balancer_port, :instance_port], 'ListenerUpdate'))
         
+        return response_generator(params)
+      end
+
+
+      # API「UpdateLoadBalancerOption」を実行し、指定したロードバランサーのオプション設定を更新します。
+      #
+      # 削除済みのロードバランサー名・待ち受けポートを指定した、管理外のロードバランサー名を指定した場合は、エラーが返されます。
+      #
+      # 各オプションの利用設定がtrueの場合は有効、falseの場合は無効へ更新します。
+      #
+      # Sorryページオプションを有効にするためには指定するロードバランサーの待ち受けポートが80番である必要があります。
+      #
+      #  @option options [String] :load_balancer_name                 変更対象のロードバランサー名(必須)
+      #  @option options [Integer] :load_balancer_port                変更対象の待ち受けポート(必須)
+      #  @option options [Integer] :instance_port                     変更対象の宛先ポート(必須)
+      #  @option options [String] :session_stickiness_policy_update   セッション固定オプション
+      #   <Hash> options  [Boolean] :enable                            - セッション固定オプション利用設定
+      #   <Hash> options  [Integer] :expiration_period                 - セッション保持時間(セッション固定オプションが有効の場合必須)
+      #   許可値: 3 | 5 | 10 | 15 | 30
+      #  @option options [String] :sorry_page_update                  Sorryページオプション
+      #   <Hash> options  [Boolean] :enable                            - Sorryページオプション利用設定
+      #   <Hash> options  [Integer] :status_code                       - レスポンスコード(Sorryページオプションが有効の場合必須)
+      #   許可値: 200 | 503
+      #  @option options [String] :mobile_filter_update               携帯キャリアフィルターオプション
+      #   <Hash> options  [Boolean] :enable                            - 携帯キャリアフィルターオプション利用設定
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   update_load_balancer_option(
+      #     :load_balancer_name => 'lb0001',
+      #     :load_balancer_port => 80,
+      #     :instance_port => 80,
+      #     :session_stickiness_enable => true,
+      #     :session_stickiness_expiration_period => 10,
+      #     :sorry_page_enable => true,
+      #     :sorry_page_status_code => 200,
+      #     :mobile_filter_enable => true
+      #   )
+      #
+      def update_load_balancer_option( options={} )
+        raise ArgumentError, "No :load_balancer_name provided." if blank?(options[:load_balancer_name])
+        raise ArgumentError, "Invalid :load_balancer_name provided." unless LOAD_BALANCER_NAME =~ options[:load_balancer_name].to_s
+        raise ArgumentError, "No :load_balancer_port provided." if blank?(options[:load_balancer_port])
+        raise ArgumentError, "Invalid :load_balancer_port provided." unless blank?(options[:load_balancer_port]) ||
+          valid_port?(options[:load_balancer_port])
+        raise ArgumentError, "No :instance_port provided." if blank?(options[:instance_port]) && !blank?(options[:load_balancer_port])
+        raise ArgumentError, "Invalid :instance_port provided." unless blank?(options[:instance_port]) ||
+          valid_port?(options[:instance_port])
+        raise ArgumentError, "No :session_stickiness_expiration_period provided." if blank?(options[:session_stickiness_expiration_period]) &&
+          !blank?(options[:session_stickiness_enable]) && 'true' == options[:session_stickiness_enable].to_s
+        raise ArgumentError, "Invalid :session_stickiness_enable provided." unless blank?(options[:session_stickiness_enable]) ||
+          BOOLEAN.include?(options[:session_stickiness_enable].to_s)
+        raise ArgumentError, "Invalid :session_stickiness_expiration_period provided." unless blank?(options[:session_stickiness_expiration_period]) ||
+          LOAD_BALANCER_SESSION_STICKINESS_EXPIRATION_PERIOD.include?(options[:session_stickiness_expiration_period].to_s)
+        raise ArgumentError, "No :sorry_page_status_code provided." if blank?(options[:sorry_page_status_code]) &&
+          !blank?(options[:sorry_page_enable]) && 'true' == options[:sorry_page_enable].to_s
+        raise ArgumentError, "Invalid :sorry_page_enable provided." unless blank?(options[:sorry_page_enable]) ||
+          BOOLEAN.include?(options[:sorry_page_enable].to_s)
+        raise ArgumentError, "Invalid :sorry_page_status_code provided." unless blank?(options[:sorry_page_status_code]) ||
+          LOAD_BALANCER_SORRY_PAGE_STATUS_CODE.include?(options[:sorry_page_status_code].to_s)
+        raise ArgumentError, "Invalid :mobile_filter_enable provided." unless blank?(options[:mobile_filter_enable]) ||
+          BOOLEAN.include?(options[:mobile_filter_enable].to_s)
+
+        params = {
+          'Action' => 'UpdateLoadBalancerOption',
+          'SessionStickinessOptionUpdate.Enable' => options[:session_stickiness_enable].to_s,
+          'SessionStickinessOptionUpdate.ExpirationPeriod' => options[:session_stickiness_expiration_period].to_s,
+          'SorryPageOptionUpdate.Enable' => options[:sorry_page_enable].to_s,
+          'SorryPageOptionUpdate.StatusCode' => options[:sorry_page_status_code].to_s,
+          'MobileFilterOptionUpdate.Enable' => options[:mobile_filter_enable].to_s
+        }
+        params.merge!(opts_to_prms(options, [:load_balancer_name, :load_balancer_port, :instance_port]))
+       
+        return response_generator(params)
+      end
+
+
+      # API「SetLoadBalancerListenerSSLCertificate」を実行し、指定したロードバランサーに対してSSL証明書を取り付けます。
+      #
+      # ロードバランサーを指定するためには、ロードバランサー名・ポート番号が必要です。
+      # 削除済みのロードバランサーを指定した、管理外のロードバランサーを指定したなど、無効なロードバランサーを指定した場合は、エラーが返されます。
+      #
+      # SSL証明書を指定するためには、SSL証明書の発行識別子が必要です。
+      # 削除済みのSSL証明書を指定した、管理外のSSL証明書を指定したなど、無効なSSL証明書を指定した場合は、エラーが返されます。
+      #
+      # 指定したSSL証明書のステータスが「有効」かつ、鍵長が1024bitかつ数量無制限の証明書のみ設定することができます。それ以外のSSL証明書を指定した場合はエラーが返されます。
+      #
+      #  @option options [String] :load_balancer_name    対象のロードバランサー名(必須)
+      #  @option options [Integer] :load_balancer_port   対象の待ち受けポート(必須)
+      #  @option options [Integer] :instance_port        対象の宛先ポート(必須)
+      #  @option options [String] :ssl_certificate_id    SSL証明書の発行識別子(必須)
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   set_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb0001', :load_balancer_port => 80, :instance_port => 80, :ssl_certificate_id => 111)
+      #
+      def set_load_balancer_listener_ssl_certificate( options={} )
+        raise ArgumentError, "No :load_balancer_name provided." if blank?(options[:load_balancer_name])
+        raise ArgumentError, "Invalid :load_balancer_name provided." unless LOAD_BALANCER_NAME =~ options[:load_balancer_name].to_s
+        raise ArgumentError, "No :load_balancer_port provided." if blank?(options[:load_balancer_port])
+        raise ArgumentError, "Invalid :load_balancer_port provided." unless blank?(options[:load_balancer_port]) ||
+          valid_port?(options[:load_balancer_port])
+        raise ArgumentError, "No :instance_port provided." if blank?(options[:instance_port])
+        raise ArgumentError, "Invalid :instance_port provided." unless blank?(options[:instance_port]) ||
+          valid_port?(options[:instance_port])
+        raise ArgumentError, "No :ssl_certificate_id provided." if blank?(options[:ssl_certificate_id])
+
+        params = {
+          'Action' => 'SetLoadBalancerListenerSSLCertificate',
+          'SSLCertificateId' => options[:ssl_certificate_id].to_s
+        }
+        params.merge!(opts_to_prms(options, [:load_balancer_name, :load_balancer_port, :instance_port]))
+       
+        return response_generator(params)
+      end
+
+      # API「UnsetLoadBalancerListenerSSLCertificate」を実行し、指定したロードバランサーに設定されているSSL証明書をはずします。
+      #
+      # ロードバランサーを指定するためには、ロードバランサー名・ポート番号が必要です。
+      # 削除済みのロードバランサーを指定した、管理外のロードバランサーを指定したなど、無効なロードバランサーを指定した場合は、エラーが返されます。
+      #
+      # SSL証明書が設定されてないロードバランサー名を指定した場合は、エラーが返されます。
+      #
+      #  @option options [String] :load_balancer_name    対象のロードバランサー名(必須)
+      #  @option options [Integer] :load_balancer_port   対象の待ち受けポート(必須)
+      #  @option options [Integer] :instance_port        対象の宛先ポート(必須)
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   unset_load_balancer_listener_ssl_certificate(:load_balancer_name => 'lb0001', :load_balancer_port => 80, :instance_port => 80)
+      #
+      def unset_load_balancer_listener_ssl_certificate( options={} )
+        raise ArgumentError, "No :load_balancer_name provided." if blank?(options[:load_balancer_name])
+        raise ArgumentError, "Invalid :load_balancer_name provided." unless LOAD_BALANCER_NAME =~ options[:load_balancer_name].to_s
+        raise ArgumentError, "No :load_balancer_port provided." if blank?(options[:load_balancer_port])
+        raise ArgumentError, "Invalid :load_balancer_port provided." unless blank?(options[:load_balancer_port]) ||
+          valid_port?(options[:load_balancer_port])
+        raise ArgumentError, "No :instance_port provided." if blank?(options[:instance_port])
+        raise ArgumentError, "Invalid :instance_port provided." unless blank?(options[:instance_port]) ||
+          valid_port?(options[:instance_port])
+
+        params = {'Action' => 'UnsetLoadBalancerListenerSSLCertificate'}
+        params.merge!(opts_to_prms(options, [:load_balancer_name, :load_balancer_port, :instance_port]))
+       
+        return response_generator(params)
+      end
+
+
+      # API「ClearLoadBalancerSession」を実行し、指定したセッション固定オプションを申し込んでいるロードバランサーのセッション情報を削除します。
+      #
+      # ロードバランサーを指定するためには、ロードバランサー名・ポート番号が必要です。
+      # 削除済みのロードバランサーを指定した、管理外のロードバランサーを指定したなど、無効なロードバランサーを指定した場合は、エラーが返されます。
+      #
+      # セッション固定オプションを申し込んでいないロードバランサー名を指定した場合は、エラーが返されます。
+      #
+      #  @option options [String] :load_balancer_name    対象のロードバランサー名(必須)
+      #  @option options [Integer] :load_balancer_port   対象の待ち受けポート(必須)
+      #  @option options [Integer] :instance_port        対象の宛先ポート(必須)
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   clear_load_balancer_session(:load_balancer_name => 'lb0001', :load_balancer_port => 80, :instance_port => 80)
+      #
+      def clear_load_balancer_session( options={} )
+        raise ArgumentError, "No :load_balancer_name provided." if blank?(options[:load_balancer_name])
+        raise ArgumentError, "Invalid :load_balancer_name provided." unless LOAD_BALANCER_NAME =~ options[:load_balancer_name].to_s
+        raise ArgumentError, "No :load_balancer_port provided." if blank?(options[:load_balancer_port])
+        raise ArgumentError, "Invalid :load_balancer_port provided." unless blank?(options[:load_balancer_port]) ||
+          valid_port?(options[:load_balancer_port])
+        raise ArgumentError, "No :instance_port provided." if blank?(options[:instance_port])
+        raise ArgumentError, "Invalid :instance_port provided." unless blank?(options[:instance_port]) ||
+          valid_port?(options[:instance_port])
+
+        params = {'Action' => 'ClearLoadBalancerSession'}
+        params.merge!(opts_to_prms(options, [:load_balancer_name, :load_balancer_port, :instance_port]))
+
         return response_generator(params)
       end
     end
