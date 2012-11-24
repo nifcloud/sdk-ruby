@@ -86,7 +86,7 @@ context "instances" do
               <instanceType>mini</instanceType>      
               <launchTime>2010-05-17T11:22:33.456Z</launchTime>      
               <placement>      
-                <availabilityZone>ap-japan-1a</availabilityZone>    
+                <availabilityZone>east-11</availabilityZone>    
               </placement>      
               <kernelId />      
               <ramdiskId />      
@@ -269,7 +269,7 @@ context "instances" do
     response.reservationSet.item[0].instancesSet.item[0].amiLaunchIndex.should.equal nil 
     response.reservationSet.item[0].instancesSet.item[0].instanceType.should.equal "mini"
     response.reservationSet.item[0].instancesSet.item[0].launchTime.should.equal "2010-05-17T11:22:33.456Z"
-    response.reservationSet.item[0].instancesSet.item[0].placement.availabilityZone.should.equal "ap-japan-1a"
+    response.reservationSet.item[0].instancesSet.item[0].placement.availabilityZone.should.equal "east-11"
     response.reservationSet.item[0].instancesSet.item[0].kernelId.should.equal nil 
     response.reservationSet.item[0].instancesSet.item[0].ramdiskId.should.equal nil
     response.reservationSet.item[0].instancesSet.item[0].platform.should.equal nil
