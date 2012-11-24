@@ -133,7 +133,7 @@ context "load_balancers" do
               </IPAddresses>  
             </Filter>    
             <AvailabilityZones>    
-              <member>ap-japan-1a</member>  
+              <member>east-11</member>  
             </AvailabilityZones>    
             <CreatedTime>2010-05-17T11:22:33.456Z</CreatedTime>    
             <AccountingType>1</AccountingType>
@@ -186,7 +186,7 @@ context "load_balancers" do
               </IPAddresses>  
             </Filter>    
             <AvailabilityZones>    
-              <member>ap-japan-1a</member>  
+              <member>east-12</member>  
             </AvailabilityZones>    
             <CreatedTime>2010-05-17T11:22:43.789Z</CreatedTime>    
             <AccountingType>1</AccountingType>
@@ -693,7 +693,7 @@ context "load_balancers" do
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Filter.FilterType.should.equal '1'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Filter.IPAddresses.member[0].should.equal '111.111.111.111'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Filter.IPAddresses.member[1].should.equal '111.111.111.112'
-    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].AvailabilityZones.member[0].should.equal 'ap-japan-1a'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].AvailabilityZones.member[0].should.equal 'east-11'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].CreatedTime.should.equal '2010-05-17T11:22:33.456Z'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.Enabled.should.equal 'true'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.ExpirationPeriod.should.equal '10'
@@ -717,7 +717,7 @@ context "load_balancers" do
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].HealthCheck.HealthyThreshold.should.equal '1'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].Filter.FilterType.should.equal '1'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].Filter.IPAddresses.member[0].should.equal '*.*.*.*'
-    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].AvailabilityZones.member[0].should.equal 'ap-japan-1a'
+    response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].AvailabilityZones.member[0].should.equal 'east-12'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[1].member[0].CreatedTime.should.equal '2010-05-17T11:22:43.789Z'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.Enabled.should.equal 'true'
     response.DescribeLoadBalancersResult.LoadBalancerDescriptions[0].member[0].Option.SessionStickinessPolicy.ExpirationPeriod.should.equal '10'
