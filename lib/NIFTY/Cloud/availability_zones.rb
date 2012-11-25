@@ -3,7 +3,11 @@ module NIFTY
     class Base < NIFTY::Base
       ZONES_IGNORED_PARAMS = Regexp.new(/ZoneName\.\d+/)
 
-      # API「DescribeAvailabilityZones」を実行し、利用可能なゾーンの情報を取得します。常に、ゾーン「ap-japan-1a」の情報が返されます。
+      # API「DescribeAvailabilityZones」を実行し、利用可能なゾーンの情報を取得します。
+      #
+      # ファイアウォールが利用可能なゾーンでは、securityGroupSupportedタグにtrueが返ります。
+      #
+      # サーバー、ロードバランサー、ファイアウォール作成時にゾーンを省略した場合、isDefaultタグがtrueのゾーンに作成されます。
       #
       #  @return [Hash] レスポンスXML解析結果
       #
