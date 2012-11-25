@@ -19,27 +19,35 @@ context "availability_zones" do
                                     :signature_version => '2', :signature_method => 'HmacSHA256')
 
     @describe_availability_zones_response_body = <<-RESPONSE
-    <DescribeAvailabilityZonesResponse xmlns="http://xxxx.nifty.com/xxx/xxx/">          
-      <availabilityZoneInfo>        
-        <item>      
-          <zoneName>ap-japan-1a</zoneName>    
-          <zoneState>available</zoneState>    
-          <regionName>ap-japan-1</regionName>    
-        </item>      
-      </availabilityZoneInfo>        
-    </DescribeAvailabilityZonesResponse>          
+    <DescribeAvailabilityZonesResponse xmlns="https://cp.cloud.nifty.com/api/">
+    　<availabilityZoneInfo>
+    　　<item>
+    　　　<zoneName>east-11</zoneName>
+    　　　<zoneState>available</zoneState>
+    　　　<regionName>east-1</regionName>
+    　　　<messageSet>
+    　　　 <item>
+    　　　　 <message/>
+    　　　 </item>
+    　　　</messageSet>
+    　　　<securityGroupSupported>true</securityGroupSupported>
+    　　　<isDefault>true</isDefault>
+    　　</item>
+    　</availabilityZoneInfo>
+    </DescribeAvailabilityZonesResponse>
     RESPONSE
-
  end
 
 
   # describe_availability_zones
   specify "describe_availability_zones - レスポンスを正しく解析できるか" do
     @api.stubs(:exec_request).returns stub(:body => @describe_availability_zones_response_body, :is_a? => true)
-    response = @api.describe_availability_zones(:zone_name => 'ap-japan-1a')
-    response.availabilityZoneInfo.item[0].zoneName.should.equal 'ap-japan-1a'
+    response = @api.describe_availability_zones(:zone_name => 'east-11')
+    response.availabilityZoneInfo.item[0].zoneName.should.equal 'east-11'
     response.availabilityZoneInfo.item[0].zoneState.should.equal 'available'
-    response.availabilityZoneInfo.item[0].regionName.should.equal 'ap-japan-1'
+    response.availabilityZoneInfo.item[0].regionName.should.equal 'east-1'
+    response.availabilityZoneInfo.item[0].securityGroupSupported.should.equal 'true'
+    response.availabilityZoneInfo.item[0].isDefault.should.equal 'true'
   end
 
   specify "describe_availability_zones - :key_name正常" do
