@@ -83,6 +83,7 @@ module NIFTY
       #  @option options [String] :ip_version             グローバルIP アドレスのバージョン 
       #   許可値: v4
       #  @option options [String] :accounting_type        利用料金タイプ
+      #  @option options [String] :availability_zones     ゾーン情報
       #   許可値: 1(月額課金) | 2(従量課金)
       #  @return [Hash] レスポンスXML解析結果
       #                   
