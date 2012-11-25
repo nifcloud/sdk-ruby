@@ -23,6 +23,24 @@ module NIFTY
 
         return response_generator(params)
       end
+
+
+      # API「DescribeRegions」を実行し、利用可能なリージョンの情報を取得します。
+      #
+      #  @option options [Array<String>] :region_name   リージョン名
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   describe_regions(:region_name => 'east-1')
+      #
+      def describe_regions( options={} )
+        params = {'Action' => 'DescribeRegions'}
+        params.merge!(pathlist('RegionName', options[:region_name]))
+
+        params.reject! {|k, v| ZONES_IGNORED_PARAMS =~ k } if @@ignore_amz_params
+
+        return response_generator(params)
+      end
     end
   end
 end

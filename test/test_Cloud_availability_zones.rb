@@ -36,6 +36,23 @@ context "availability_zones" do
     　</availabilityZoneInfo>
     </DescribeAvailabilityZonesResponse>
     RESPONSE
+    @describe_regions_response_body = <<-RESPONSE
+    <DescribeRegionsResponse xmlns="https://cp.cloud.nifty.com/api/">
+     <requestId>f6dd8353-eb6b-6b4fd32e4f05</requestId>
+     <regionInfo>
+      <item>
+       <regionName>east-1</regionName>
+       <regionEndpoint>east-1.cloud.nifty.com</regionEndpoint>
+       <messageSet>
+        <item>
+         <message/>
+        </item>
+       </messageSet>
+       <isDefault>true</isDefault>
+      </item>
+     </regionInfo>
+    </DescribeRegionsResponse>
+    RESPONSE
  end
 
 
@@ -54,6 +71,22 @@ context "availability_zones" do
     @api.stubs(:exec_request).returns stub(:body => @describe_availability_zones_response_body, :is_a? => true)
     lambda { @api.describe_availability_zones(:zone_name => 'foo') }.should.not.raise(NIFTY::ArgumentError)
     lambda { @api.describe_availability_zones(:zone_name => %w(foo bar)) }.should.not.raise(NIFTY::ArgumentError)
+  end
+
+  # describe_regions
+  specify "describe_regions - レスポンスを正しく解析できるか" do
+    @api.stubs(:exec_request).returns stub(:body => @describe_regions_response_body, :is_a? => true)
+    response = @api.describe_regions(:zone_name => 'east-11')
+    response.requestId.should.equal 'f6dd8353-eb6b-6b4fd32e4f05'
+    response.regionInfo.item[0].regionName.should.equal 'east-1'
+    response.regionInfo.item[0].regionEndpoint.should.equal 'east-1.cloud.nifty.com'
+    response.regionInfo.item[0].isDefault.should.equal 'true'
+  end
+
+  specify "describe_regions - :region_name正常" do
+    @api.stubs(:exec_request).returns stub(:body => @describe_availability_zones_response_body, :is_a? => true)
+    lambda { @api.describe_regions(:region_name => 'foo') }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.describe_regions(:region_name => %w(foo bar)) }.should.not.raise(NIFTY::ArgumentError)
   end
 
 end
