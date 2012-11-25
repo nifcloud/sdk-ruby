@@ -87,6 +87,7 @@ module NIFTY
       #  @option options [String] :group_name         ファイアウォールグループ名(必須)
       #   使用可能文字: 半角英数字
       #  @option options [String] :group_description  ファイアウォールグループのメモ
+      #  @option options [String] :availability_zone  ゾーン情報
       #  @return [Hash] レスポンスXML解析結果
       #  
       #  @example
@@ -98,6 +99,7 @@ module NIFTY
 
         params = {'Action' => 'CreateSecurityGroup'}
         params.merge!(opts_to_prms(options, [:group_name, :group_description]))
+        params.merge!(opts_to_prms(options, [:availability_zone], 'Placement'))
 
         return response_generator(params)
       end

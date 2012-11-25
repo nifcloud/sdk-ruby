@@ -175,10 +175,11 @@ context "security_groups" do
   specify "create_security_group - パラメータが正しく作られるか" do
     @api.stubs(:make_request).with("Action" => "CreateSecurityGroup",
                                    "GroupName" => "a",
-                                   "GroupDescription" => "a"
+                                   "GroupDescription" => "a",
+                                   "Placement.AvailabilityZone" => "east-12"
                                   ).returns stub(:body => @create_security_group_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @create_security_group_response_body, :is_a? => true)
-    response = @api.create_security_group(:group_name => "a", :group_description => "a")
+    response = @api.create_security_group(:group_name => "a", :group_description => "a", :availability_zone => "east-12")
   end
 
   specify "create_security_group - :group_name正常" do
