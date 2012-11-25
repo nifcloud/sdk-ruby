@@ -350,6 +350,23 @@ RunInstances の例）
     puts "Error Message: #{e.error_message}"
   end
 
+=== リージョン／ゾーンの指定方法
+
+==== リージョン指定方法
+
+環境変数または NIFTY::Cloud::Base オブジェクト生成時のコンストラクタにてご指定ください。
+
+環境変数：
+
+  export NIFTY_CLOUD_ENDPOINT_URL='https://east-1.cp.cloud.nifty.com/api/'
+
+コンストラクタ：
+
+  ncs4r = NIFTY::Cloud::Base.new(:server => 'west-1.cp.cloud.nifty.com', :path => '/api/')
+
+==== ゾーン指定方法
+
+各メソッドのドキュメントをご参照ください。
 
 == 謝辞
 
