@@ -38,6 +38,10 @@ context "images" do
           <imageType>machine</imageType>
           <platform>centos</platform>
           <name>CentOS 5.3 32bit Plain</name>
+          <placement>
+            <regionName>east-1</regionName>
+            <availabilityZone>east-11</availabilityZone>
+          </placement>
           <rootDeviceType>disk</rootDeviceType>
         </item>  
       </imagesSet>    
@@ -131,6 +135,8 @@ context "images" do
     response.imagesSet.item[0].imageType.should.equal 'machine'
     response.imagesSet.item[0].platform.should.equal 'centos'
     response.imagesSet.item[0].name.should.equal 'CentOS 5.3 32bit Plain'
+    response.imagesSet.item[0].placement.regionName.should.equal 'east-1'
+    response.imagesSet.item[0].placement.availabilityZone.should.equal 'east-11'
     response.imagesSet.item[0].rootDeviceType.should.equal 'disk'
   end
 
