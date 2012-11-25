@@ -78,10 +78,13 @@ context "images" do
                                    "Name" => "a",
                                    "Description" => "a",
                                    "NoReboot" => "a",
-                                   "LeftInstance" => "true"
+                                   "LeftInstance" => "true",
+                                   "Placement.RegionName" => "east-1",
+                                   "Placement.AvailabilityZone" => "east-11"
                                   ).returns stub(:body => @create_image_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @create_image_response_body, :is_a? => true)
-    response = @api.create_image( :instance_id => "a", :name => "a", :description => "a", :no_reboot => "a", :left_instance => true )
+    response = @api.create_image( :instance_id => "a", :name => "a", :description => "a", :no_reboot => "a", :left_instance => true,
+      :region_name => "east-1", :availability_zone => "east-11" )
   end
 
   specify "create_image - :instance_id, :name正常" do

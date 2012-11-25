@@ -887,6 +887,8 @@ context "instances" do
                                    'CopyInstance.InstanceType' => 'mini',
                                    'CopyInstance.AccountingType' => '1',
                                    'CopyInstance.ipType' => 'static',
+                                   'CopyInstance.Placement.RegionName' => 'east-1',
+                                   'CopyInstance.Placement.AvailabilityZone' => 'east-11',
                                    'CopyInstance.LoadBalancers.1.LoadBalancerName' => 'lb1',
                                    'CopyInstance.LoadBalancers.1.LoadBalancerPort' => '80',
                                    'CopyInstance.LoadBalancers.1.InstancePort' => '80',
@@ -901,7 +903,7 @@ context "instances" do
     response = @api.copy_instances( :instance_id => "server01", :instance_name => 'cpy', :instance_type => 'mini', :accounting_type => 1, :ip_type => 'static', 
                                    :load_balancers => [{:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 80}, 
                                      {:load_balancer_name => 'lb2', :load_balancer_port => 80, :instance_port => 80}], 
-                                     :security_group => %w(gr1 gr2), :copy_count => 2
+                                     :security_group => %w(gr1 gr2), :copy_count => 2, :region_name => 'east-1', :availability_zone => 'east-11'
                                   )
   end
 

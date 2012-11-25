@@ -47,9 +47,11 @@ module NIFTY
       # タイムアウトした場合は、API「DescribeImages」のレスポンス「imageState」でカスタマイズイメージのステータスを確認できます。
       # 処理が失敗した場合、カスタマイズイメージは保存されず、エラーが返されます。
       #
-      #  @option options [String] :instance_id      イメージ化元サーバー(必須)
-      #  @option options [String] :name             イメージ名(必須)
-      #  @option options [Boolean] :left_instance   イメージ化元サーバーを残す
+      #  @option options [String] :instance_id         イメージ化元サーバー(必須)
+      #  @option options [String] :name                イメージ名(必須)
+      #  @option options [Boolean] :left_instance      イメージ化元サーバーを残す
+      #  @option options [String] :region_name         リージョン情報
+      #  @option options [String] :availability_zone   ゾーン情報
       #   許可値: true(サーバーを残す) | false(サーバーを残さない) 
       #  @return [Hash] レスポンスXML解析結果
       #
@@ -64,6 +66,7 @@ module NIFTY
 
         params = { 'Action' => 'CreateImage' }
         params.merge!(opts_to_prms(options, [:instance_id, :name, :description, :no_reboot, :left_instance]))
+        params.merge!(opts_to_prms(options, [:region_name, :availability_zone], 'Placement'))
 
         params.reject! {|k, v| IMAGES_IGNORED_PARAMS =~ k } if @@ignore_amz_params
 

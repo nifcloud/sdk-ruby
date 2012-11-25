@@ -324,6 +324,8 @@ module NIFTY
       #                   [Integer] :instance_port         - 宛先ポート
       #  @option options [Array<String>] :security_group  ファイアウォールグループ名
       #  @option options [Integer] :copy_count            コピー台数
+      #  @option options [String] :region_name            リージョン情報
+      #  @option options [String] :availability_zone      ゾーン情報
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -366,6 +368,7 @@ module NIFTY
         params.merge!(pathlist('CopyInstance.SecurityGroup', options[:security_group]))
         params.merge!(opts_to_prms(options, [:instance_id, :copy_count]))
         params.merge!(opts_to_prms(options, [:instance_name, :instance_type, :accounting_type], 'CopyInstance'))
+        params.merge!(opts_to_prms(options, [:region_name, :availability_zone], 'CopyInstance.Placement'))
 
         return response_generator(params)
       end
