@@ -9,6 +9,7 @@ module NIFTY
       #
       # サーバー、ロードバランサー、ファイアウォール作成時にゾーンを省略した場合、isDefaultタグがtrueのゾーンに作成されます。
       #
+      #  @option options [Array<String>] :zone_name   ゾーン名
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
