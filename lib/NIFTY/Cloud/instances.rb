@@ -397,7 +397,7 @@ module NIFTY
       end
 
 
-      # API「ImportInstances」を実行し、指定したOVFファイルの情報に基づいて、サーバーインポートを予約します。
+      # API「ImportInstance」を実行し、指定したOVFファイルの情報に基づいて、サーバーインポートを予約します。
       # 1回のリクエストで1台のサーバーが予約可能です。
       #
       # イメージ（VMDKファイル）は、別途アップロード領域へアップロードしてください（このAPIのレスポンスに含まれるタスクIDを指定します）。
@@ -427,7 +427,7 @@ module NIFTY
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
-      #   cancel_copy_instances(:instance_id => 'server01')
+      #   import_instance(:ovf => "<?xml ersion='1.0' encoding='UTF-8'><ovf ovf:Enve…</ovf:Envelope>")
       #
       def import_instance( options={} )
         raise ArgumentError, "No :ovf provided." if blank?(options[:ovf])
