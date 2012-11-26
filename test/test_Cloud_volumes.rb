@@ -15,7 +15,7 @@ context "volumes" do
 
   before do
     @api = NIFTY::Cloud::Base.new( :access_key_id => "not a key", :secret_access_key => "not a secret", 
-                                     :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :user_agent => 'NIFTY Cloud API Ruby SDK',
+                                     :server => 'cp.cloud.nifty.com', :path => '/api/', :user_agent => 'NIFTY Cloud API Ruby SDK',
                                      :signature_version => '2', :signature_method => 'HmacSHA256')
     @valid_create_size  = [
       '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '15', '20',
@@ -36,7 +36,7 @@ context "volumes" do
           <size>800</size>    
           <diskType>Disk40</diskType>    
           <snapshotId/>    
-          <availabilityZone>ap-japan-1a</availabilityZone>    
+          <availabilityZone>east-11</availabilityZone>    
           <accountingType>1</accountingType>
           <nextMonthAccountingType>1</nextMonthAccountingType>
           <status>in-use</status>    
@@ -60,7 +60,7 @@ context "volumes" do
           <volumeId>disk05</volumeId>
           <size>800</size>
           <snapshotId/>
-          <availabilityZone>ap-japan-1a</availabilityZone>
+          <availabilityZone>east-11</availabilityZone>
           <status>creating</status>
           <createTime>2008-05-07T11:51:50.000Z</createTime>
           <accountingType>1</accountingType>
@@ -109,7 +109,7 @@ context "volumes" do
     response.volumeSet.item[0]['size'].should.equal '800'
     response.volumeSet.item[0].diskType.should.equal 'Disk40'
     response.volumeSet.item[0].snapshotId.should.equal nil
-    response.volumeSet.item[0].availabilityZone.should.equal 'ap-japan-1a'
+    response.volumeSet.item[0].availabilityZone.should.equal 'east-11'
     response.volumeSet.item[0].status.should.equal 'in-use'
     response.volumeSet.item[0].createTime.should.equal '2008-05-07T11:51:50.000Z'
     response.volumeSet.item[0].attachmentSet.item[0].volumeId.should.equal 'vol-4282672b'
@@ -142,7 +142,7 @@ context "volumes" do
     response.volumeId.should.equal 'disk05'
     response['size'].should.equal '800'
     response.snapshotId.should.equal nil
-    response.availabilityZone.should.equal 'ap-japan-1a'
+    response.availabilityZone.should.equal 'east-11'
     response.status.should.equal 'creating'
     response.createTime.should.equal '2008-05-07T11:51:50.000Z'
   end

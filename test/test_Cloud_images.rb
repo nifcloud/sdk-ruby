@@ -15,7 +15,7 @@ context "images" do
 
   before do
     @api = NIFTY::Cloud::Base.new( :access_key_id => "not a key", :secret_access_key => "not a secret",
-                                     :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :user_agent => 'NIFTY Cloud API Ruby SDK',
+                                     :server => 'cp.cloud.nifty.com', :path => '/api/', :user_agent => 'NIFTY Cloud API Ruby SDK',
                                      :signature_version => '2', :signature_method => 'HmacSHA256')
     @valid_owner = %w(niftycloud self)
 

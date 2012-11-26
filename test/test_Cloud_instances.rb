@@ -15,7 +15,7 @@ context "instances" do
 
   before do
     @api = NIFTY::Cloud::Base.new( :access_key_id => "not a key", :secret_access_key => "not a secret",
-                                    :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :user_agent => 'NIFTY Cloud API Ruby SDK',
+                                    :server => 'cp.cloud.nifty.com', :path => '/api/', :user_agent => 'NIFTY Cloud API Ruby SDK',
                                     :signature_version => '2', :signature_method => 'HmacSHA256')
     @valid_instance_type = %w(mini small small2 small4 small8 medium medium4 medium8 medium16
                               large large8 large16 large24 large32 extra-large16 extra-large24 extra-large32)
@@ -44,7 +44,7 @@ context "instances" do
     　　　<instanceType>medium</instanceType>    
     　　　<launchTime>2010-05-17T11:22:33.456Z </launchTime>    
     　　　<placement>    
-    　　　　<availabilityZone>ap-japan-1a</availabilityZone>    
+    　　　　<availabilityZone>east-11</availabilityZone>    
     　　　</placement>    
          <privateIpAddress>10.0.5.113</privateIpAddress>    
          <ipAddress />    
@@ -436,7 +436,7 @@ context "instances" do
     response.instancesSet.item[0].admin.should.equal nil
     response.instancesSet.item[0].instanceType.should.equal 'medium'
     response.instancesSet.item[0].launchTime.should.equal '2010-05-17T11:22:33.456Z '
-    response.instancesSet.item[0].placement.availabilityZone.should.equal 'ap-japan-1a'
+    response.instancesSet.item[0].placement.availabilityZone.should.equal 'east-11'
     response.instancesSet.item[0].privateIpAddress.should.equal '10.0.5.113'
     response.instancesSet.item[0].ipAddress.should.equal nil
     response.instancesSet.item[0].privateIpAddressV6.should.equal 'xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx'
@@ -552,7 +552,7 @@ context "instances" do
   
   specify "run_instances - :availability_zone正常" do
     @api.stubs(:exec_request).returns stub(:body => @run_instances_response_body, :is_a? => true)
-    lambda { @api.run_instances(@basic_run_instances_options.merge(:availability_zone => 'ap-japan-1a')) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.run_instances(@basic_run_instances_options.merge(:availability_zone => 'east-11')) }.should.not.raise(NIFTY::ArgumentError)
   end
   
   specify "run_instances - :group_name正常" do
@@ -1059,7 +1059,7 @@ context "instances" do
   
   specify "import_instance - :availability_zone正常" do
     @api.stubs(:exec_request).returns stub(:body => @import_instance_response_body, :is_a? => true)
-    lambda { @api.import_instance(@basic_import_instance_options.merge(:availability_zone => 'ap-japan-1a')) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.import_instance(@basic_import_instance_options.merge(:availability_zone => 'east-11')) }.should.not.raise(NIFTY::ArgumentError)
   end
   
   specify "import_instance - :disable_api_termination正常" do

@@ -38,7 +38,7 @@ context "Base" do
       :secret_access_key  => "secretkey",
       :use_ssl            => true,
       :server             => "cp.cloud.nifty.com",
-      :path               => "/api/1.7",
+      :path               => "/api/",
       :proxy_server       => nil,
       :port               => 443, 
       :connection_timeout => 30,
@@ -84,11 +84,11 @@ context "Base" do
 
   specify "オプション正常" do
     @options.merge!(:access_key_id => 'access', :secret_access_key => 'secret', :use_ssl => true,
-      :server => 'cp.cloud.nifty.com', :path => '/api/1.7/')
+      :server => 'cp.cloud.nifty.com', :path => '/api/')
     @api = NIFTY::Cloud::Base.new(@options)
     @api.use_ssl.should.equal true
     @api.server.should.equal 'cp.cloud.nifty.com'
-    @api.path.should.equal '/api/1.7/'
+    @api.path.should.equal '/api/'
 
     # max retry
     @options[:max_retry] = 3 
@@ -159,21 +159,21 @@ context "Base" do
 
   specify "pathhashlist引数不正" do
     @options.merge!(:access_key_id => 'access', :secret_access_key => 'secret', :use_ssl => true,
-                    :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :signature_version => 2, :signature_method => 'HmacSHA256')
+                    :server => 'cp.cloud.nifty.com', :path => '/api/', :signature_version => 2, :signature_method => 'HmacSHA256')
     @api = NIFTY::Cloud::Base.new(@options)
     lambda { @api.run_instances(:image_id => '1', :key_name => 'key', :password => 'pass', :instance_id => 'serv', :block_device_mapping => 'mapping') }.should.raise(NIFTY::ArgumentError)
   end
 
   specify "pathkvlist引数不正" do
     @options.merge!(:access_key_id => 'access', :secret_access_key => 'secret', :use_ssl => true,
-                    :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :signature_version => 2, :signature_method => 'HmacSHA256')
+                    :server => 'cp.cloud.nifty.com', :path => '/api/', :signature_version => 2, :signature_method => 'HmacSHA256')
     @api = NIFTY::Cloud::Base.new(@options)
     lambda { @api.describe_security_groups(:group_name => 'gr1', :filter => 'filter') }.should.raise(NIFTY::ArgumentError)
   end
 
   specify "レスポンスエラー" do
     @options.merge!(:access_key_id => 'access', :secret_access_key => 'secret', :use_ssl => true,
-                    :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :signature_version => 2, :signature_method => 'HmacSHA256')
+                    :server => 'cp.cloud.nifty.com', :path => '/api/', :signature_version => 2, :signature_method => 'HmacSHA256')
     @api = NIFTY::Cloud::Base.new(@options)
     @api.stubs(:exec_request).returns stub(:body => @error_response_body, :is_a? => false)
     lambda { @api.describe_instances(:instance_id => 'noserver') }.should.raise(NIFTY::ResponseError)

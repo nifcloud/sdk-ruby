@@ -16,7 +16,7 @@ context "Response classes" do
 
   before do
     @http_xml = <<-RESPONSE
-    <RebootInstancesResponse xmlns="http://cp.cloud.nifty.com/api/1.7/">
+    <RebootInstancesResponse xmlns="http://cp.cloud.nifty.com/api/">
       <return>true</return>
     </RebootInstancesResponse>
     RESPONSE
@@ -27,7 +27,7 @@ context "Response classes" do
 
   specify "should show the response as a formatted string when calling #inspect" do
     # sorting the response hash first since ruby 1.8.6 and ruby 1.9.1 sort the hash differently before the inspect
-    @response.sort.inspect.should.equal %{[[\"return\", \"true\"], [\"xmlns\", \"http://cp.cloud.nifty.com/api/1.7/\"]]}
+    @response.sort.inspect.should.equal %{[[\"return\", \"true\"], [\"xmlns\", \"http://cp.cloud.nifty.com/api/\"]]}
   end
 
 

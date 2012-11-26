@@ -15,11 +15,11 @@ context "key_pairs" do
 
   before do
     @api = NIFTY::Cloud::Base.new( :access_key_id => "not a key", :secret_access_key => "not a secret", 
-                                     :server => 'cp.cloud.nifty.com', :path => '/api/1.7/', :user_agent => 'NIFTY Cloud API Ruby SDK',
+                                     :server => 'cp.cloud.nifty.com', :path => '/api/', :user_agent => 'NIFTY Cloud API Ruby SDK',
                                      :signature_version => '2', :signature_method => 'HmacSHA256')
 
     @create_key_pair_response_body = <<-RESPONSE
-    <Createkey_pairResponse xmlns="http://cp.cloud.nifty.com/api/1.7/">
+    <Createkey_pairResponse xmlns="http://cp.cloud.nifty.com/api/">
     <keyName>gsg-key_pair</keyName>
     <keyFingerprint>1f:51:ae:28:bf:89:e9:d8:1f:25:5d:37:2d:7d:b8:ca:9f:f5:f1:6f</keyFingerprint>
     <keyMaterial>-----BEGIN RSA PRIVATE KEY-----

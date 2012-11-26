@@ -263,7 +263,7 @@ RunInstances の例）
 
 ==== レスポンス例
 
-  <RunInstancesResponse xmlns="https://cp.cloud.nifty.com/api/1.7/">
+  <RunInstancesResponse xmlns="https://cp.cloud.nifty.com/api/">
     <requestId>22e11cc4-0e5a-4815-9892-b1ed6aeed6c4</requestId>
     <reservationId/>
     <ownerId/>
@@ -287,7 +287,7 @@ RunInstances の例）
         <instanceType>instanceType</instanceType>
         <launchTime>2011-07-01T13:21:59.074+09:00</launchTime>
         <placement>
-          <availabilityZone>ap-japan-1a</availabilityZone>
+          <availabilityZone>east-11</availabilityZone>
         </placement>
         <platform>centos</platform>
         <monitoring>

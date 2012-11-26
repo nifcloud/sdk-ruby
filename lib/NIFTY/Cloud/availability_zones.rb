@@ -13,7 +13,7 @@ module NIFTY
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
-      #   describe_availability_zones(:zone_name => 'ap-japan-1a')
+      #   describe_availability_zones(:zone_name => 'east-1')
       #
       def describe_availability_zones( options={} )
         params = {'Action' => 'DescribeAvailabilityZones'}
