@@ -23,7 +23,7 @@ context "load_balancers" do
     @valid_network_volume = [10, 20, 30, 40, 100, 200, '10', '20', '30', '40', '100', '200']
     @valid_ip_version = %w(v4 v6)
     @accounting_type = %w(1 2)
-    @session_stickiness_expiration_period = %w(3 5 10 15 30)
+    @session_stickiness_policy_expiration_period = %w(3 5 10 15 30)
     @sorry_page_status_code = %w(200 503)
 
     @basic_create_lb_params = {
@@ -1299,14 +1299,14 @@ context "load_balancers" do
                                    "LoadBalancerName" => "a",
                                    "LoadBalancerPort" => "80",
                                    "InstancePort" => "80",
-                                   "SessionStickinessOptionUpdate.Enable" => "true",
-                                   "SessionStickinessOptionUpdate.ExpirationPeriod" => "3",
-                                   "SorryPageOptionUpdate.Enable" => "true",
-                                   "SorryPageOptionUpdate.StatusCode" => "200",
-                                   "MobileFilterOptionUpdate.Enable" => "true"
+                                   "SessionStickinessPolicyUpdate.Enable" => "true",
+                                   "SessionStickinessPolicyUpdate.ExpirationPeriod" => "3",
+                                   "SorryPageUpdate.Enable" => "true",
+                                   "SorryPageUpdate.StatusCode" => "200",
+                                   "MobileFilterUpdate.Enable" => "true"
                                   ).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
     @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
-    response = @api.update_load_balancer_option(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80, :session_stickiness_enable => true, :session_stickiness_expiration_period => 3, :sorry_page_enable => true, :sorry_page_status_code => 200, :mobile_filter_enable => true)
+    response = @api.update_load_balancer_option(:load_balancer_name => "a", :load_balancer_port => 80, :instance_port => 80, :session_stickiness_policy_enable => true, :session_stickiness_policy_expiration_period => 3, :sorry_page_enable => true, :sorry_page_status_code => 200, :mobile_filter_enable => true)
   end
 
   specify "update_load_balancer_option - :load_balancer_port正常" do
@@ -1323,12 +1323,12 @@ context "load_balancers" do
     end
   end
 
-  specify "update_load_balancer_option - :session_stickiness_enable,:session_stickiness_expiration_period正常" do
+  specify "update_load_balancer_option - :session_stickiness_policy_enable,:session_stickiness_policy_expiration_period正常" do
     @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
-    @session_stickiness_expiration_period.each do |period|
-      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => true, :session_stickiness_expiration_period => period)) }.should.not.raise(NIFTY::ArgumentError)
+    @session_stickiness_policy_expiration_period.each do |period|
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_policy_enable => true, :session_stickiness_policy_expiration_period => period)) }.should.not.raise(NIFTY::ArgumentError)
     end
-    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => false)) }.should.not.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_policy_enable => false)) }.should.not.raise(NIFTY::ArgumentError)
   end
 
   specify "update_load_balancer_option - :sorry_page_enable,:sorry_page_status_code正常" do
@@ -1367,14 +1367,14 @@ context "load_balancers" do
     lambda { @api.update_load_balancer_option(:load_balancer_name => 'lb1', :load_balancer_port => 80, :instance_port => 'foo') }.should.raise(NIFTY::ArgumentError)
   end
 
-  specify "update_load_balancer_option - :session_stickiness_enable,:session_stickiness_expiration_period不正" do
+  specify "update_load_balancer_option - :session_stickiness_policy_enable,:session_stickiness_policy_expiration_period不正" do
     @api.stubs(:exec_request).returns stub(:body => @update_load_balancer_option_response_body, :is_a? => true)
-    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => true)) }.should.raise(NIFTY::ArgumentError)
+    lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_policy_enable => true)) }.should.raise(NIFTY::ArgumentError)
     [1000, 'hoge'].each do |enable|
-      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_enable => enable, :session_stickiness_expiration_period => '3')) }.should.raise(NIFTY::ArgumentError)
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_policy_enable => enable, :session_stickiness_policy_expiration_period => '3')) }.should.raise(NIFTY::ArgumentError)
     end
     [1000, 'hoge'].each do |period|
-      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_expiration_period => period)) }.should.raise(NIFTY::ArgumentError)
+      lambda { @api.update_load_balancer_option(@basic_set_filter_params.merge(:session_stickiness_policy_expiration_period => period)) }.should.raise(NIFTY::ArgumentError)
     end
   end
 

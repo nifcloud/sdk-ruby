@@ -9,7 +9,7 @@ module NIFTY
       LOAD_BALANCER_NAME      = /^[a-zA-Z0-9]{1,15}$/
       LOAD_BALANCERS_IGNORED_PARAMS = Regexp.union(/AvailabilityZones .member.*/, 
                                                    /HealthCheck .Timeout/)
-      LOAD_BALANCER_SESSION_STICKINESS_EXPIRATION_PERIOD = ['3', '5', '10', '15', '30']
+      LOAD_BALANCER_SESSION_STICKINESS_POLICY_EXPIRATION_PERIOD = ['3', '5', '10', '15', '30']
       LOAD_BALANCER_SORRY_PAGE_STATUS_CODE = ['200', '503']
 
       # API「ConfigureHealthCheck」を実行し、指定したロードバランサーのヘルスチェックの設定を変更します。
@@ -448,19 +448,16 @@ module NIFTY
       #
       # Sorryページオプションを有効にするためには指定するロードバランサーの待ち受けポートが80番である必要があります。
       #
-      #  @option options [String] :load_balancer_name                 変更対象のロードバランサー名(必須)
-      #  @option options [Integer] :load_balancer_port                変更対象の待ち受けポート(必須)
-      #  @option options [Integer] :instance_port                     変更対象の宛先ポート(必須)
-      #  @option options [String] :session_stickiness_policy_update   セッション固定オプション
-      #   <Hash> options  [Boolean] :enable                            - セッション固定オプション利用設定
-      #   <Hash> options  [Integer] :expiration_period                 - セッション保持時間(セッション固定オプションが有効の場合必須)
+      #  @option options [String] :load_balancer_name                              変更対象のロードバランサー名(必須)
+      #  @option options [Integer] :load_balancer_port                             変更対象の待ち受けポート(必須)
+      #  @option options [Integer] :instance_port                                  変更対象の宛先ポート(必須)
+      #  @option options [Boolean] :session_stickiness_policy_enable               セッション固定オプション利用設定
+      #  @option options [Integer] :session_stickiness_policy_expiration_period    セッション保持時間(セッション固定オプションが有効の場合必須)
       #   許可値: 3 | 5 | 10 | 15 | 30
-      #  @option options [String] :sorry_page_update                  Sorryページオプション
-      #   <Hash> options  [Boolean] :enable                            - Sorryページオプション利用設定
-      #   <Hash> options  [Integer] :status_code                       - レスポンスコード(Sorryページオプションが有効の場合必須)
+      #  @option options [Boolean] :sorry_page_enable                              Sorryページオプション利用設定
+      #  @option options [Integer] :sorry_page_status_code                         レスポンスコード(Sorryページオプションが有効の場合必須)
       #   許可値: 200 | 503
-      #  @option options [String] :mobile_filter_update               携帯キャリアフィルターオプション
-      #   <Hash> options  [Boolean] :enable                            - 携帯キャリアフィルターオプション利用設定
+      #  @option options [Boolean] :enable                                         携帯キャリアフィルターオプション利用設定
       #  @return [Hash] レスポンスXML解析結果
       #
       #  @example
@@ -468,8 +465,8 @@ module NIFTY
       #     :load_balancer_name => 'lb0001',
       #     :load_balancer_port => 80,
       #     :instance_port => 80,
-      #     :session_stickiness_enable => true,
-      #     :session_stickiness_expiration_period => 10,
+      #     :session_stickiness_policy_enable => true,
+      #     :session_stickiness_policy_expiration_period => 10,
       #     :sorry_page_enable => true,
       #     :sorry_page_status_code => 200,
       #     :mobile_filter_enable => true
@@ -484,12 +481,12 @@ module NIFTY
         raise ArgumentError, "No :instance_port provided." if blank?(options[:instance_port]) && !blank?(options[:load_balancer_port])
         raise ArgumentError, "Invalid :instance_port provided." unless blank?(options[:instance_port]) ||
           valid_port?(options[:instance_port])
-        raise ArgumentError, "No :session_stickiness_expiration_period provided." if blank?(options[:session_stickiness_expiration_period]) &&
-          !blank?(options[:session_stickiness_enable]) && 'true' == options[:session_stickiness_enable].to_s
-        raise ArgumentError, "Invalid :session_stickiness_enable provided." unless blank?(options[:session_stickiness_enable]) ||
-          BOOLEAN.include?(options[:session_stickiness_enable].to_s)
-        raise ArgumentError, "Invalid :session_stickiness_expiration_period provided." unless blank?(options[:session_stickiness_expiration_period]) ||
-          LOAD_BALANCER_SESSION_STICKINESS_EXPIRATION_PERIOD.include?(options[:session_stickiness_expiration_period].to_s)
+        raise ArgumentError, "No :session_stickiness_policy_expiration_period provided." if blank?(options[:session_stickiness_policy_expiration_period]) &&
+          !blank?(options[:session_stickiness_policy_enable]) && 'true' == options[:session_stickiness_policy_enable].to_s
+        raise ArgumentError, "Invalid :session_stickiness_policy_enable provided." unless blank?(options[:session_stickiness_policy_enable]) ||
+          BOOLEAN.include?(options[:session_stickiness_policy_enable].to_s)
+        raise ArgumentError, "Invalid :session_stickiness_policy_expiration_period provided." unless blank?(options[:session_stickiness_policy_expiration_period]) ||
+          LOAD_BALANCER_SESSION_STICKINESS_POLICY_EXPIRATION_PERIOD.include?(options[:session_stickiness_policy_expiration_period].to_s)
         raise ArgumentError, "No :sorry_page_status_code provided." if blank?(options[:sorry_page_status_code]) &&
           !blank?(options[:sorry_page_enable]) && 'true' == options[:sorry_page_enable].to_s
         raise ArgumentError, "Invalid :sorry_page_enable provided." unless blank?(options[:sorry_page_enable]) ||
@@ -501,11 +498,11 @@ module NIFTY
 
         params = {
           'Action' => 'UpdateLoadBalancerOption',
-          'SessionStickinessOptionUpdate.Enable' => options[:session_stickiness_enable].to_s,
-          'SessionStickinessOptionUpdate.ExpirationPeriod' => options[:session_stickiness_expiration_period].to_s,
-          'SorryPageOptionUpdate.Enable' => options[:sorry_page_enable].to_s,
-          'SorryPageOptionUpdate.StatusCode' => options[:sorry_page_status_code].to_s,
-          'MobileFilterOptionUpdate.Enable' => options[:mobile_filter_enable].to_s
+          'SessionStickinessPolicyUpdate.Enable' => options[:session_stickiness_policy_enable].to_s,
+          'SessionStickinessPolicyUpdate.ExpirationPeriod' => options[:session_stickiness_policy_expiration_period].to_s,
+          'SorryPageUpdate.Enable' => options[:sorry_page_enable].to_s,
+          'SorryPageUpdate.StatusCode' => options[:sorry_page_status_code].to_s,
+          'MobileFilterUpdate.Enable' => options[:mobile_filter_enable].to_s
         }
         params.merge!(opts_to_prms(options, [:load_balancer_name, :load_balancer_port, :instance_port]))
        
