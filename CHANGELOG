@@ -2,6 +2,19 @@
 ニフティクラウド SDK for Ruby
 -----------------------------
 
+2013-09-16 SDK for Ruby Version.1.11.beta2
+-------------------------------------------------------------------------------
+        * 1.11.beta2リリース
+	* 優先度高めの項目に対応
+
+        * lib/NIFTY/Cloud/instances.rb
+        * test/test_Cloud_instances.rb
+        - 新しいサーバータイプに対応する (see #22)
+
+        * lib/NIFTY/Cloud/security_groups.rb
+        * test/test_Cloud_security_groups.rb
+        - セキュリティグループルールの ANY に対応する (see #22)
+
 2012-11-12 SDK for Ruby Version.1.8.beta1
 -------------------------------------------------------------------------------
         * 1.8.beta1リリース
