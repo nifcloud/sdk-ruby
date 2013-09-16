@@ -2,7 +2,7 @@ module NIFTY
   module Cloud
     class Base < NIFTY::Base
       FILTER_NAME   = ['description', 'group-name']
-      IP_PROTOCOL   = ['TCP', 'UDP', 'ICMP', 'SSH', 'HTTP', 'HTTPS', 'SMTP', 'POP3', 'IMAP']
+      IP_PROTOCOL   = ['TCP', 'UDP', 'ICMP', 'SSH', 'HTTP', 'HTTPS', 'SMTP', 'POP3', 'IMAP', 'ANY']
       IN_OUT        = ['IN', 'OUT']
       DATE_FORMAT   = %r!^(\d{8}|\d{4}-\d{2}-\d{2}|\d{4}/\d{2}/\d{2})$!
       GROUP_NAME    = Regexp.union(/^[a-zA-Z0-9]+$/, 'default(Linux)', 'default(Windows)')

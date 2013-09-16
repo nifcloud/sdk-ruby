@@ -18,7 +18,7 @@ context "security_groups" do
                                      :server => 'cp.cloud.nifty.com', :path => '/api/', :user_agent => 'NIFTY Cloud API Ruby SDK',
                                      :signature_version => '2', :signature_method => 'HmacSHA256')
 
-    @valid_ip_protocol = %w(TCP UDP ICMP SSH HTTP HTTPS SMTP POP3 IMAP)
+    @valid_ip_protocol = %w(TCP UDP ICMP SSH HTTP HTTPS SMTP POP3 IMAP ANY)
     @valid_in_out = %w(IN In in Out Out out)
     @valid_course_update = [1, 2, '1', '2']
     @valid_boolean = [true, false, 'true', 'false']
