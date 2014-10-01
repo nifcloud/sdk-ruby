@@ -1,9 +1,10 @@
 module NIFTY
   module Cloud
     class Base < NIFTY::Base
-      INSTANCE_TYPE                 = ['mini', 'small', 'small2', 'small4', 'small8', 'medium', 'medium4', 'medium8', 'medium16',
-                                       'large', 'large8', 'large16', 'large24', 'large32', 'extra-large16', 'extra-large24', 'extra-large32',
-                                       'double-large32', 'double-large48', 'double-large64']
+      INSTANCE_TYPE                 = ['e-mini', 'mini', 'e-small', 'small', 'e-small2', 'small2', 'e-small4', 'small4', 'e-small8', 'small8',
+                                       'e-medium', 'medium', 'e-medium4', 'medium4', 'e-medium8', 'medium8', 'e-medium16', 'medium16',
+                                       'e-large', 'large', 'e-large8', 'large8', 'e-large16', 'large16', 'e-large24', 'large24', 'e-large32', 'large32',
+                                       'extra-large16', 'extra-large24', 'extra-large32', 'double-large32', 'double-large48', 'double-large64']
       ACCOUNTING_TYPE               = ['1', '2']
       BOOLEAN                       = ['true', 'false']
       IP_TYPE                       = ['static', 'dynamic', 'none']
