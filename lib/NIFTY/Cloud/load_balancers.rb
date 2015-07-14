@@ -3,7 +3,9 @@ module NIFTY
     class Base < NIFTY::Base
       LOAD_BALANCER_PROTOCOL  = ['HTTP', 'HTTPS', 'FTP']
       BALANCING_TYPE          = ['1', '2']
-      NETWORK_VOLUMES         = ['10', '20', '30', '40', '100', '200']
+      NETWORK_VOLUMES         = ['10', '20', '30', '40', '100', '200', '300', '400', '500', '600',
+                                 '700', '800', '900', '1000', '1100', '1200', '1300', '1400', '1500', '1600',
+                                 '1700', '1800', '1900', '2000']
       IP_VERSION              = ['v4', 'v6']
       FILTER_TYPE             = ['1', '2']
       LOAD_BALANCER_NAME      = /^([a-z]{3}[0-9]{5}\.)?[a-zA-Z0-9]{1,15}$/
