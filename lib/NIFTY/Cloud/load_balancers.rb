@@ -8,7 +8,7 @@ module NIFTY
                                  '1700', '1800', '1900', '2000']
       IP_VERSION              = ['v4', 'v6']
       FILTER_TYPE             = ['1', '2']
-      LOAD_BALANCER_NAME      = /^([a-z]{3}[0-9]{5}\.)?[a-zA-Z0-9]{1,15}$/
+      LOAD_BALANCER_NAME      = /^([A-Za-z]{3}[0-9]{5}\.)?[a-zA-Z0-9]{1,15}$/
       LOAD_BALANCERS_IGNORED_PARAMS = Regexp.union(/AvailabilityZones .member.*/, 
                                                    /HealthCheck .Timeout/)
       LOAD_BALANCER_SESSION_STICKINESS_POLICY_EXPIRATION_PERIOD = ['3', '5', '10', '15', '30']
